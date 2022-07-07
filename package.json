@@ -9,7 +9,7 @@
     "test": "vitest --run",
     "test:watch": "vitest --watch",
     "validate": "pnpm test && pnpm bundle && pnpm types",
-    "release": "pnpm validate && git push --follow-tags origin main",
+    "release": "pnpm validate && git push --follow-tags origin master",
     "size": "pnpm bundle && export-size ."
   },
   "license": "MIT",

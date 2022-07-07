@@ -1,1 +1,11 @@
-export const a = 3
+import { Pieses, Piese } from './types'
+
+
+export class Board {
+
+
+  constructor(readonly pieses: Pieses) {}
+
+
+
+}
