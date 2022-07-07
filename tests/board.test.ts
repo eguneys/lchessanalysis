@@ -11,5 +11,12 @@ it('should drop pieces', async () => {
 
   expect(board.pieses)
   .toStrictEqual(['wr@a1', 'bq@a2'])
-})
 
+
+  board.out('a1')
+
+  expect(board.pieses.length).toBe(1)
+
+
+  expect(board.fen).toBe('8/8/8/8/8/8/q7/8')
+})
