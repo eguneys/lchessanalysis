@@ -1,8 +1,32 @@
 import { Pieses, Piese } from './types'
 import { poss_high_first } from './types'
 import { piece_fen } from './types'
+import { files, ranks, roles } from './types'
 
 export class Board {
+
+  static from_fen = (fen: string) => {
+    let res = fen.split('/').flatMap((rank, i_rank) => {
+      let res = []
+      let i_file = 0
+      rank.split('').forEach(char => {
+        let i_role = roles.indexOf(char.toLowerCase())
+        if (i_role > -1) {
+          let role = roles[i_role]
+          let color = char.toLowerCase() === char ? 'b' : 'w'
+          let piece = color + role
+          let pos = files[i_file] + ranks[7-i_rank]
+          res.push([pos, piece])
+          i_file++
+        } else {
+          i_file+= parseInt(char) 
+        }
+      })
+      return res
+    })
+
+    return new Board(new Map(res))
+  }
 
   static from_pieses = (_pieses: Pieses) => {
     return new Board(new Map(_pieses.map(_ => {
@@ -20,6 +44,7 @@ export class Board {
         spaces = (spaces || 0) + 1
       } else {
         out += (spaces || '') + piece_fen(piese.split('@')[0])
+        spaces = undefined
       }
 
       if (file === 8) {

@@ -17,6 +17,10 @@ it('should drop pieces', async () => {
 
   expect(board.pieses.length).toBe(1)
 
+  board.in('wp@c2')
 
-  expect(board.fen).toBe('8/8/8/8/8/8/q7/8')
+  expect(board.fen).toBe('8/8/8/8/8/8/q1P5/8')
+
+
+  expect(Board.from_fen(board.fen).fen).toBe(board.fen)
 })

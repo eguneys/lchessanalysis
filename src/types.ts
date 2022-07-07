@@ -21,4 +21,4 @@ export type Piese = string
 export type Pieses = Array<Piese>
 
 
-export const piece_fen = (piece: Piece) => piece[0] === 'w' ? piece[1].upperCase() : piece[1]
+export const piece_fen = (piece: Piece) => piece[0] === 'w' ? piece[1].toUpperCase() : piece[1]
