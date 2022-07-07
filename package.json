@@ -5,7 +5,7 @@
   "module": "dist/dev/index.js",
   "scripts": {
     "bundle": "rimraf dist && node ./bundle.js",
-    "types": "tsc -p tsconfig.json && rimraf dist/*.d.ts",
+    "types": "tsc -p tsconfig-build.json && rimraf dist/*.d.ts",
     "test": "vitest --run",
     "test:watch": "vitest --watch",
     "validate": "pnpm test && pnpm bundle && pnpm types",
