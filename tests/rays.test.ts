@@ -1,9 +1,19 @@
-import { left, lefter, right, righter, king_side, queen_side, forward, backward, fwd_que, fwd2_que, fwd2_kng, fwd_que2, fwd_kng2, fwd2 } from '../src'
+import { left, lefter, right, righter, king_side, queen_side, forward, backward, fwd_que, fwd2_que, fwd2_kng, fwd_que2, fwd_kng2, fwd2, fwd1, king_fwd } from '../src'
 
-import { knight } from '../src'
+import { knight, queen } from '../src'
+import { white_push, white_push1, white_capture } from '../src'
+
+it('should pawn', () => {
+  //console.log(white_capture)
+})
+
 
 it('should knight', () => {
   expect(knight['d4'].slice(0).sort()).toStrictEqual(['c6', 'e2', 'e6', 'c2', 'f3', 'f5', 'b3', 'b5'].sort())
+
+  expect(king_fwd['d4']['d5']).toStrictEqual([])
+
+  expect(queen['d4']['a7']).toStrictEqual(['c5', 'b6'])
 })
 
 

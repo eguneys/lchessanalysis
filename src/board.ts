@@ -67,11 +67,23 @@ export class Board {
 
   in(_: Piese) {
     let [piece, pos] = _.split('@')
-    this._pieses.set(pos, piece)
+    this.in_piece(piece, pos)
+  }
+
+  in_piece(_: Piece, pos: Pos) {
+    this._pieses.set(pos, _)
   }
 
   out(_: Pos) {
     this._pieses.delete(_)
+  }
+
+  on(pos: Pos) {
+    return this._pieses.get(pos)
+  }
+
+  get clone() {
+    return new Board(new Map(this._pieses))
   }
 
   constructor(readonly _pieses: Map<Pos, Piece>) {}

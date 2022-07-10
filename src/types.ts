@@ -5,10 +5,15 @@ export const colors = ['w', 'b']
 export const roles = ['r', 'q', 'b', 'n', 'p', 'k']
 
 export const poss = files.flatMap(file => ranks.map(rank => file + rank))
+export const pieces = colors.flatMap(color => roles.map(role => color + role))
+
+export const pieses = pieces.flatMap(piece => poss.map(pos => [piece, pos].join('@')))
 
 export const ranks_high = ranks.slice(0).reverse()
 export const poss_sorted = ranks.flatMap(rank => files.map(file => file + rank))
 export const poss_high_first = ranks_high.flatMap(rank  => files.map(file => file + rank))
+
+export const ods = poss.flatMap(pos => poss.map(_pos => pos + _pos))
 
 export type File = string
 export type Rank = string
@@ -210,7 +215,14 @@ export const make_fwd1 = (forward: any) => make_fwdn(forward, 0)
 export const fwd2 = make_fwd2(forward)
 export const bck2 = make_fwd2(backward)
 
-
+export const fwd1 = make_fwd1(forward)
+export const bck1 = make_fwd1(backward)
+export const fwd_que1 = make_fwd1(fwd_que)
+export const fwd_kng1 = make_fwd1(fwd_kng)
+export const bck_que1 = make_fwd1(bck_que)
+export const bck_kng1 = make_fwd1(bck_kng)
+export const king_side1 = make_fwd1(king_side)
+export const queen_side1 = make_fwd1(queen_side)
 
 export function xy_or(ors: Array<any>) {
   let res = {}
@@ -230,6 +242,63 @@ export function xy_or(ors: Array<any>) {
 }
 
 export const knight = xy_or([fwd2_que, fwd2_kng, bck2_que, bck2_kng, fwd_que2, fwd_kng2, bck_que2, bck_kng2])
+
+
+export function xyn_or(ors: Array<any>) {
+  let res = {}
+
+  poss.forEach(pos => {
+    let _res = {}
+    poss.forEach(_pos => {
+      ors.forEach(_ => {
+        if (_[pos]?.[_pos]) {
+          _res[_pos] = _[pos][_pos]
+        }
+      })
+    })
+    res[pos] = _res
+  })
+  return res
+}
+
+export const king_fwd = xyn_or([fwd1, fwd_que1, fwd_kng1])
+export const king_bck = xyn_or([bck1, bck_que1, bck_kng1])
+export const king_lat = xyn_or([queen_side, king_side])
+
+export const bishop = xyn_or([fwd_que, fwd_kng, bck_que, bck_kng])
+export const rook = xyn_or([forward, backward, queen_side, king_side])
+export const king = xyn_or([king_fwd, king_bck, king_lat])
+export const queen = xyn_or([bishop, rook])
+
+export const white_home = (pos: Pos) => pos.split('')[1] === '2'
+export const black_home = (pos: Pos) => pos.split('')[1] === '7'
+
+export const white_base_dif = (pos: Pos) => pos.split('')[1] !== '1'
+export const black_base_dif = (pos: Pos) => pos.split('')[1] !== '8'
+
+export function xy_xfilter(fwd2: any, white_home: any) {
+  let res = {}
+  poss.forEach(pos => {
+    if (white_home(pos) && fwd2[pos]) {
+      res[pos] = fwd2[pos]
+    }
+  })
+  return res
+}
+
+export const white_push2 = xy_xfilter(fwd2, white_home)
+export const black_push2 = xy_xfilter(bck2, black_home)
+
+export const white_push1 = xy_xfilter(fwd1, white_base_dif)
+export const black_push1 = xy_xfilter(bck1, black_base_dif)
+
+export const white_push = xyn_or([white_push2, white_push1])
+export const black_push = xyn_or([black_push2, black_push1])
+
+
+export const white_capture = xy_xfilter(xyn_or([fwd_kng1, fwd_que1]), white_base_dif)
+export const black_capture = xy_xfilter(xyn_or([bck_kng1, bck_que1]), black_base_dif)
+
 
 
 
