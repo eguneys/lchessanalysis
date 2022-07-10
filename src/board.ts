@@ -3,6 +3,11 @@ import { poss_high_first } from './types'
 import { piece_fen } from './types'
 import { files, ranks, roles } from './types'
 
+export const files_from_side = {
+  'q': files,
+  'k': files.slice(0).reverse()
+}
+
 export class Board {
 
   static from_fen = (fen: string) => {
@@ -80,6 +85,15 @@ export class Board {
 
   on(pos: Pos) {
     return this._pieses.get(pos)
+  }
+
+  rook_file_at_side(rank: Rank, side: CastleSide) {
+    return files_from_side[side].find(file => {
+      let pos = file + rank
+      if (this._pieses.get(pos)?.[1] === 'r') {
+        return true
+      }
+    })
   }
 
   get poss() {

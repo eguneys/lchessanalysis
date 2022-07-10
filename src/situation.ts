@@ -39,8 +39,12 @@ export class MobileSituation {
       this.rays.mobile_ray(o),
       this.rays.mobile_pawn(o),
       this.rays.capture_ray(o),
-      this.rays.capture_pawn(o)
+      this.rays.capture_pawn(o),
+      this.rays.castle(o, 'k'),
+      this.rays.castle(o, 'q')
     ].filter(Boolean))
+
+
 
     if (Object.keys(d_mobile).length > 0) {
       return obj_map(d_mobile, (d, mobile) => {

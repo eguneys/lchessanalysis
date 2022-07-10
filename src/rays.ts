@@ -1,7 +1,7 @@
 import { bishop, queen, rook, knight, king } from './types'
 import { white_push, black_push, white_capture, black_capture } from './types'
 import { Board } from './board'
-import { arr_map, obj_map } from './util'
+import { arr_map2, arr_map, obj_map } from './util'
 
 export type OD = string
 
@@ -128,6 +128,36 @@ export class MobileRay {
     }
   }
 
+  castle(o: Pos) {
+    return arr_map2(['k', 'q'], side => {
+      let on_piece = this._board.on(o)
+      if (on_piece) {
+        let [color, role] = on_piece.split('')
+        if (role === 'k') {
+          let [kdf, rdf] = castled_king_rook_file[side]
+          let rof = this._board.rook_file_at_side(color, side)
+          let base = turn_base[color]
+          let d = kdf + base
+          let ko = o
+          let ro = (rof + base)
+          let kd = d
+          let rd = (rdf + base)
+
+
+          let { board } = this
+
+          board.out(ko)
+          board.out(ro)
+          board.in_piece(color+'k', kd)
+          board.in_piece(color+'r', rd)
+          return [kd, [board, side]]
+        }
+      }
+    })
+  }
+
+
+
   get board() {
     return this._board.clone
   }
@@ -151,4 +181,14 @@ export const pawn_push = {
 export const pawn_capture = {
   w: white_capture,
   b: black_capture
+}
+
+export const turn_base = {
+  w: 1,
+  b: 8
+}
+
+export const castled_king_rook_file = {
+  'k': ['g', 'f'],
+  'q': ['c', 'd']
 }

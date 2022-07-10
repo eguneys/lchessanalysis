@@ -1,3 +1,16 @@
+export const arr_map2 = (arr: Array<any>, fn: any) => {
+  let res = {}
+  arr.forEach(key => {
+    let _res = fn(key)
+    if (_res) {
+      res[_res[0]] = _res[1]
+    }
+  })
+  return res
+}
+
+
+
 export const arr_map = (arr: Array<any>, fn: any) => {
   let res = {}
   arr.forEach(key => {
