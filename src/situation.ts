@@ -56,6 +56,14 @@ export class MobileSituation {
     return new MobileSituation(opposite, board)
   }
 
+  same(board: Board) {
+    return new MobileSituation(this.turn, board)
+  }
+
+  with_board(fn: (_: Board) => void) {
+    return this.same(fn(this.board))
+  }
+
   get allowed_mobiles() {
     if (!this._c_mobiles) {
       this._c_mobiles = arr_map(this.board.poss, o => this.mobile_situation(o))
@@ -73,7 +81,15 @@ export class MobileSituation {
     return this.allowed_mobiles[o][d]
   }
 
-  constructor(readonly turn: Color, readonly board: Board) {
-    this.rays = new MobileRay(board)
+  o_ds(o: Pos) {
+    return this.ods.filter(od => od.slice(0, 2) === o)
+  }
+
+  get board() {
+    return this._board.clone
+  }
+
+  constructor(readonly turn: Color, readonly _board: Board) {
+    this.rays = new MobileRay(_board)
   }
 }

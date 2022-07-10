@@ -263,7 +263,7 @@ export function xyn_or(ors: Array<any>) {
 
 export const king_fwd = xyn_or([fwd1, fwd_que1, fwd_kng1])
 export const king_bck = xyn_or([bck1, bck_que1, bck_kng1])
-export const king_lat = xyn_or([queen_side, king_side])
+export const king_lat = xyn_or([queen_side1, king_side1])
 
 export const bishop = xyn_or([fwd_que, fwd_kng, bck_que, bck_kng])
 export const rook = xyn_or([forward, backward, queen_side, king_side])
