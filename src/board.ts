@@ -82,6 +82,10 @@ export class Board {
     return this._pieses.get(pos)
   }
 
+  get poss() {
+    return [...this._pieses.keys()]
+  }
+
   get clone() {
     return new Board(new Map(this._pieses))
   }

@@ -1,4 +1,3 @@
-
 export const arr_map = (arr: Array<any>, fn: any) => {
   let res = {}
   arr.forEach(key => {
