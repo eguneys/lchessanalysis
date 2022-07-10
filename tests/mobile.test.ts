@@ -5,7 +5,7 @@ it ('should capture_ray', () => {
   let board = Board.from_pieses(['wr@f2', 'bk@c2'])
   let mr = new MobileRay(board)
 
-  expect(mr.capture_ray('f2')['c2'].slice(0, 2)).toStrictEqual(['wr', 'bk'])
+  expect(mr.capture_ray('f2')['c2'].slice(1)).toStrictEqual(['wr', 'bk'])
 
 })
 

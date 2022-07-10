@@ -1,17 +1,7 @@
 import { bishop, queen, rook, knight, king } from './types'
-import { white_push, black_push } from './types'
+import { white_push, black_push, white_capture, black_capture } from './types'
 import { Board } from './board'
-
-export const obj_map = (obj: any, fn: any) => {
-  let res = {}
-  Object.keys(obj).forEach(key => {
-    let _res = fn(key, obj[key])
-    if (_res) {
-      res[key] = _res
-    }
-  })
-  return res
-}
+import { arr_map, obj_map } from './util'
 
 export type OD = string
 
@@ -22,19 +12,42 @@ export class MobileRay {
     let on_p = this._board.on(o)
     if (on_p) {
       let [color, role] = on_p.split('')
-      let d_is = ray_route[role][o]
-      return obj_map(d_is, (d, is) => {
-        if (is) {
-          let block = is.find(_ => this._board.on(_))
-
-          if (!block) {
-            return this.capture(o, d)
-          }
+      let d_is = ray_route[role]?.[o]
+      if (d_is) {
+        if (Array.isArray(d_is)) {
+          return arr_map(d_is, d => this.capture(o, d))
         }
-      })
+        return obj_map(d_is, (d, is) => {
+          if (is) {
+            let block = is.find(_ => this._board.on(_))
+
+            if (!block) {
+              return this.capture(o, d)
+            }
+          }
+        })
+      }
     }
   }
 
+
+
+  capture_pawn(o: O) {
+    let on_p = this._board.on(o)
+    if (on_p) {
+      let [piece, pos] = on_p.split('@')
+      let [color, role] = piece.split('')
+
+      if (role === 'p') {
+
+        let d_is = pawn_capture[color][o]
+
+        return obj_map(d_is, (d, is) => {
+          return this.capture(o, d)
+        })
+      }
+    }
+  }
 
 
 
@@ -66,14 +79,19 @@ export class MobileRay {
     let on_piece = this._board.on(o)
     if (on_piece) {
       let [color, role] = on_piece.split('')
-      let d_is = ray_route[role][o]
-      return obj_map(d_is, (d, is) => {
-        let block = is.find(_ => this.board.on(_))
-
-        if (!block) {
-          return this.mobile(o, d)
+      let d_is = ray_route[role]?.[o]
+      if (d_is) {
+        if (Array.isArray(d_is)) {
+          return arr_map(d_is, d => this.mobile(o, d))
         }
-      })
+        return obj_map(d_is, (d, is) => {
+          let block = is.find(_ => this.board.on(_))
+
+          if (!block) {
+            return this.mobile(o, d)
+          }
+        })
+      }
     }
   }
 
@@ -93,7 +111,7 @@ export class MobileRay {
         board.out(d)
         board.in_piece(on_o, d)
 
-        return [on_o, on_d, board]
+        return [board, on_o, on_d]
       }
     }
   }
@@ -106,7 +124,7 @@ export class MobileRay {
     if (o !== d && !!on_o && !on_d) {
       board.out(o)
       board.in_piece(on_o, d)
-      return [on_o, board]
+      return [board, on_o]
     }
   }
 
@@ -128,4 +146,9 @@ export const ray_route = {
 export const pawn_push = {
   w: white_push,
   b: black_push
+}
+
+export const pawn_capture = {
+  w: white_capture,
+  b: black_capture
 }
