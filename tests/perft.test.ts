@@ -59,7 +59,7 @@ const run = () => {
   for (let i = 0; i < nb; i++) { runOne() }
 }
 
-it.only('should playing a game', () => {
+it.skip('should playing a game', () => {
   runOne()
 
 

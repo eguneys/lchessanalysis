@@ -93,6 +93,11 @@ export class MobileSituation {
     return this._board.clone
   }
 
+
+  get fen() {
+    return [this._board.fen, this.turn].join(' ')
+  }
+
   constructor(readonly turn: Color, readonly _board: Board) {
     this.rays = new MobileRay(_board)
   }

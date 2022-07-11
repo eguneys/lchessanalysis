@@ -4,6 +4,8 @@ export const ranks = ['1', '2', '3', '4', '5', '6', '7', '8']
 export const colors = ['w', 'b']
 export const roles = ['r', 'q', 'b', 'n', 'p', 'k']
 
+export const promotables = ['q', 'n', 'r', 'b']
+
 export const poss = files.flatMap(file => ranks.map(rank => file + rank))
 export const pieces = colors.flatMap(color => roles.map(role => color + role))
 
