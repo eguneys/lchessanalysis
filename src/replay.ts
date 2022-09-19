@@ -10,7 +10,7 @@ export type NodeData = {
 
 export type Node = {
   [ODP]?: Node,
-  data?: NodeData
+  data: NodeData
 }
 
 function data_flat(data: NodeData) {
@@ -59,12 +59,13 @@ export class Replay {
     delete node[uci_char(move)]
   }
 
-  move(path: Path, move: ODP, data?: NodeData) {
+  move(path: Path, move: ODP, data: NodeData = {}) {
     let node = find_path(this._moves, path)
     
     node[uci_char(move)] = {}
-    if (data) {
-      node[uci_char(move)].data = data
+    node[uci_char(move)].data = {
+      uci: move,
+      ...data
     }
   }
 
@@ -77,8 +78,23 @@ export class Replay {
     return node.data
   }
 
+  play_ucis(ucis: string) {
+    ucis.split(' ').reduce((root, uci) => {
+      let _ = uci_char(uci)
+
+      this.move(root, uci)
+      return root + _
+    }, '')
+  }
+
   get replay() {
     return [this.situation.fen, node_arr('', this._moves).join('\n')].join('\n\n')
+  }
+
+
+  get moves() {
+
+
   }
 
 

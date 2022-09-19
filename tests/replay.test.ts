@@ -1,5 +1,15 @@
 import { ods, uci_char } from '../src'
 import { MobileSituation, Replay } from '../src'
+import { initial_fen } from '../src'
+
+it('should play moves', () => {
+
+  let replay = Replay.from_fen(initial_fen)
+
+  replay.play_ucis('e2e4 d7d5 e4d5 f7f6')
+
+  expect(replay.replay).toBe(initial_fen.slice(0, -11) + '\n\nEG\nEGB@\nEGB@G@\nEGB@G@RQ')
+})
 
 it('should replay', () => {
 
