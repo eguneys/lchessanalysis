@@ -1,4 +1,48 @@
 import { match_idea, Idea, MobileSituation, IsoSituation } from '../src'
+import { puzzles_csv } from './_fixtures'
+
+
+let puzzles = puzzles_csv.split('\n').map(_ => {
+  let [id,fen,moves,,,,,tags,link] = _.split(',')
+  return {
+    id,
+    fen,
+    moves,
+    tags,
+    link
+  }
+})
+
+
+it.skip('castles bug', () => {
+  let fen = '6rk/3R3p/4P2r/1p3p2/p7/P1P5/1P3RpK/4Q3 w - - 1 42'
+  let move0 = 'h2g1'
+
+  let _ = MobileSituation.from_fen(fen).od(move0)
+  console.log(_[0].fen)
+})
+
+
+it.only('should filter puzzles', () => {
+
+
+  let i = [
+    ['Q', 'R', 'p'],
+  ]
+
+  let _ = puzzles.filter(_ => {
+    let { fen, moves } = _
+    let [move0, ..._moves] = moves.split(' ')
+
+    let s = MobileSituation.from_fen(fen).od(move0)[0]
+    let iso = IsoSituation.from_fen(s.fen)
+    return match_idea(iso, s, i)[1]
+  })
+
+
+  console.log(_)
+
+})
 
 it('should iso', () => {
 

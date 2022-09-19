@@ -134,9 +134,16 @@ export class MobileRay {
       if (on_piece) {
         let [color, role] = on_piece.split('')
         if (role === 'k') {
+
+          let base = turn_base[color]
+
+          let [ofile, orank] = o.split('')
+          if (orank !== base) {
+            return undefined
+          }
+
           let [kdf, rdf] = castled_king_rook_file[side]
           let rof = this._board.rook_file_at_side(color, side)
-          let base = turn_base[color]
           let d = kdf + base
           let ko = o
           let ro = (rof + base)
