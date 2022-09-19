@@ -14,8 +14,7 @@ export type Node = {
 }
 
 function data_flat(data: NodeData) {
-
-  return `{${data.comment}}`
+  return `{${[data.uci, data.comment].join(' ')}}`
 }
 
 function node_arr(path: Path, moves: Node) {
@@ -27,7 +26,7 @@ function node_arr(path: Path, moves: Node) {
         return [path, data_flat(moves[move])].join('___')
       }
       let _path = path + move
-      return [_path, ...node_arr(_path, moves[move])]
+      return node_arr(_path, moves[move])
     })
   }
 }
