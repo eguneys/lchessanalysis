@@ -19,7 +19,7 @@ const play_one_move_match = (i, _) => {
 
   let s = MobileSituation.from_fen(fen).od(move0)[0]
   let iso = IsoSituation.from_fen(s.fen)
-  return match_idea(iso, s, i)[0]
+  return match_idea(iso, s, i)
 }
 
 it.skip('castles bug', () => {
@@ -27,7 +27,6 @@ it.skip('castles bug', () => {
   let move0 = 'h2g1'
 
   let _ = MobileSituation.from_fen(fen).od(move0)
-  console.log(_[0].fen)
 })
 
 it.only('should q K', () => {
@@ -39,9 +38,13 @@ it.only('should q K', () => {
     "link": "https://lichess.org/gLC1NwZX/black#52"
   }
 
-  let i = [['q', 'f', 'K']]
+  let i = [
+    ['q', 'f0', 'K'],
+    ['K', 'f0']
+  ]
 
   let res = play_one_move_match(i, _)
+  console.log(res)
 })
 
 it.skip('should q B', () => {

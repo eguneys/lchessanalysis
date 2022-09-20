@@ -13,14 +13,15 @@ export function d_or(d_ors: Array<any>) {
   return res
 }
 
+export type Castles = string
 
 export class MobileSituation {
 
   static from_fen = (fen: string) => {
-    let [pieses, turn] = fen.split(' ')
+    let [pieses, turn, castles] = fen.split(' ')
 
     let board = Board.from_fen(pieses)
-    return new MobileSituation(turn, board)
+    return new MobileSituation(turn, board, castles)
   }
 
   mobile_situation(o: O) {
@@ -40,8 +41,7 @@ export class MobileSituation {
       this.rays.mobile_pawn(o),
       this.rays.capture_ray(o),
       this.rays.capture_pawn(o),
-      this.rays.castle(o, 'k'),
-      this.rays.castle(o, 'q')
+      this.rays.castle(o)
     ].filter(Boolean))
 
 
@@ -57,11 +57,11 @@ export class MobileSituation {
 
   opposite(board: Board) {
     let opposite = this.turn === 'w' ? 'b' : 'w'
-    return new MobileSituation(opposite, board)
+    return new MobileSituation(opposite, board, this._castles)
   }
 
   same(board: Board) {
-    return new MobileSituation(this.turn, board)
+    return new MobileSituation(this.turn, board, this._castles)
   }
 
   with_board(fn: (_: Board) => void) {
@@ -95,10 +95,10 @@ export class MobileSituation {
 
 
   get fen() {
-    return [this._board.fen, this.turn].join(' ')
+    return [this._board.fen, this.turn, this._castles].join(' ')
   }
 
-  constructor(readonly turn: Color, readonly _board: Board) {
-    this.rays = new MobileRay(_board)
+  constructor(readonly turn: Color, readonly _board: Board, readonly _castles: Castles) {
+    this.rays = new MobileRay(_board, _castles)
   }
 }

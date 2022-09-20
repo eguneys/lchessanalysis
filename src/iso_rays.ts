@@ -141,6 +141,13 @@ export class IsoRay {
       if (on_piece) {
         let [color, role] = on_piece.split('')
         if (role === 'k') {
+          let castles_sign = color === 'w' ? side.toUpperCase() : side
+
+          if (!this.castles[castles_sign]) {
+            return undefined
+          }
+
+
           let [kdf, rdf] = castled_king_rook_file[side]
           let rof = this._board.rook_file_at_side(color, side)
           let base = turn_base[color]
@@ -163,12 +170,22 @@ export class IsoRay {
     })
   }
 
+  get castles() {
+    let res = {}
+
+    let _ = this._castles.split('')
+
+    _.forEach(_ => res[_] = true)
+
+    return res
+  }
+
 
 
 
   get board() {
     return this._board.clone
   }
-  constructor(readonly _board: Board) {}
+  constructor(readonly _board: Board, readonly _castles: Castles) {}
 }
 

@@ -134,14 +134,15 @@ export class MobileRay {
       if (on_piece) {
         let [color, role] = on_piece.split('')
         if (role === 'k') {
+          let castles_sign = color === 'w' ? side.toUpperCase() : side
+
+          if (!this.castles[castles_sign]) {
+            return undefined
+          }
 
           let base = turn_base[color]
 
           let [ofile, orank] = o.split('')
-          if (orank !== base) {
-            return undefined
-          }
-
           let [kdf, rdf] = castled_king_rook_file[side]
           let rof = this._board.rook_file_at_side(color, side)
           let d = kdf + base
@@ -149,7 +150,6 @@ export class MobileRay {
           let ro = (rof + base)
           let kd = d
           let rd = (rdf + base)
-
 
           let { board } = this
 
@@ -163,13 +163,21 @@ export class MobileRay {
     })
   }
 
+  get castles() {
+    let res = {}
 
+    let _ = this._castles.split('')
+
+    _.forEach(_ => res[_] = true)
+
+    return res
+  }
 
   get board() {
     return this._board.clone
   }
 
-  constructor(readonly _board: Board) {}
+  constructor(readonly _board: Board, readonly _castles: Castles) {}
 }
 
 export const ray_route = {

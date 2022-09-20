@@ -9,10 +9,10 @@ export class IsoSituation {
 
 
   static from_fen = (fen: string) => {
-    let [pieses, turn] = fen.split(' ')
+    let [pieses, turn, castles] = fen.split(' ')
 
     let board = Board.from_fen(pieses)
-    return new IsoSituation(turn, board)
+    return new IsoSituation(turn, board, castles)
   }
 
   mobile_situation(o: O) {
@@ -51,11 +51,11 @@ export class IsoSituation {
 
   opposite(board: Board) {
     let opposite = this.turn === 'w' ? 'b' : 'w'
-    return new IsoSituation(opposite, board)
+    return new IsoSituation(opposite, board, this._castles)
   }
 
   same(board: Board) {
-    return new IsoSituation(this.turn, board)
+    return new IsoSituation(this.turn, board, this._castles)
   }
 
   with_board(fn: (_: Board) => void) {
@@ -94,8 +94,8 @@ export class IsoSituation {
     return [this._board.fen, this.turn].join(' ')
   }
 
-  constructor(readonly turn: Color, readonly _board: Board) {
-    this.rays = new IsoRay(_board)
+  constructor(readonly turn: Color, readonly _board: Board, readonly _castles: Castles) {
+    this.rays = new IsoRay(_board, _castles)
   }
 
 }
