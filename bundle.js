@@ -8,6 +8,7 @@ async function main() {
       treeShaking: true,
       format: 'esm',
       bundle: true,
+      sourcemap: 'inline',
       platform: 'browser',
       target: 'es2019',
       write: true,

@@ -13,6 +13,14 @@ let puzzles = puzzles_csv.split('\n').map(_ => {
   }
 })
 
+const play_one_move_match = (i, _) => {
+  let { fen, moves } = _
+  let [move0, ..._moves] = moves.split(' ')
+
+  let s = MobileSituation.from_fen(fen).od(move0)[0]
+  let iso = IsoSituation.from_fen(s.fen)
+  return match_idea(iso, s, i)[0]
+}
 
 it.skip('castles bug', () => {
   let fen = '6rk/3R3p/4P2r/1p3p2/p7/P1P5/1P3RpK/4Q3 w - - 1 42'
@@ -22,22 +30,45 @@ it.skip('castles bug', () => {
   console.log(_[0].fen)
 })
 
+it.only('should q K', () => {
+  let _ = {
+    "id": "019yp",
+    "fen": "5r1k/p1q3pp/2p1Q1p1/8/8/5RN1/P1P3P1/6K1 b - - 1 26",
+    "moves": "f8f3 e6e8 f3f8 e8f8",
+    "tags": "endgame mate mateIn2 short",
+    "link": "https://lichess.org/gLC1NwZX/black#52"
+  }
 
-it.only('should filter puzzles', () => {
+  let i = [['q', 'f', 'K']]
+
+  let res = play_one_move_match(i, _)
+})
+
+it.skip('should q B', () => {
+  let _ = {
+    "id": "00Ec4",
+    "fen": "2rq1r1k/p5pp/8/1p1BpPb1/2Pp2Q1/P2P2R1/6PP/R5K1 b - - 3 25",
+    "moves": "c8c7 g4g5 d8g5 g3g5",
+    "tags": "crushing middlegame short",
+    "link": "https://lichess.org/HUFGdjKK/black#50"
+  }
+
+  let i = [['q', 'B']]
+
+
+  let res = play_one_move_match(i, _)
+
+})
+
+
+it('should filter puzzles', () => {
 
 
   let i = [
     ['Q', 'R', 'p'],
   ]
 
-  let _ = puzzles.filter(_ => {
-    let { fen, moves } = _
-    let [move0, ..._moves] = moves.split(' ')
-
-    let s = MobileSituation.from_fen(fen).od(move0)[0]
-    let iso = IsoSituation.from_fen(s.fen)
-    return match_idea(iso, s, i)[1]
-  })
+  let _ = puzzles.filter(_ => play_one_move_match(i, _))
 
 
   console.log(_)

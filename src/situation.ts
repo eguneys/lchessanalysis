@@ -35,7 +35,6 @@ export class MobileSituation {
       return undefined
     }
 
-    console.log(o, this.rays.castle(o))
     let d_mobile = d_or([
       this.rays.mobile_ray(o),
       this.rays.mobile_pawn(o),

@@ -10,7 +10,7 @@ export type NodeData = {
 
 export type Node = {
   [ODP]?: Node,
-  data: NodeData
+  data?: NodeData
 }
 
 function data_flat(data: NodeData) {
@@ -40,6 +40,14 @@ function find_path(node: Node, path: Path) {
   return find_path(node[head], rest)
 }
 
+function follow_path(node: Node, path: Path, acc: Array<Node>) {
+  if (path === '') {
+    return [...acc, node]
+  }
+  let [head, rest] = [path.slice(0, 2), path.slice(2)]
+  return follow_path(node[head], rest, [...acc, node])
+}
+
 export class Replay {
 
 
@@ -47,6 +55,9 @@ export class Replay {
     return new Replay(MobileSituation.from_fen(fen), {})
   }
 
+  follow_path(path: Path) {
+    return follow_path(this._moves, path, [])
+  }
 
   path(path: Path) {
     return find_path(this._moves, path)
