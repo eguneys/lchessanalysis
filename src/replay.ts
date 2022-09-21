@@ -72,7 +72,7 @@ export class Replay {
   move(path: Path, move: ODP, data: NodeData = {}) {
     let node = find_path(this._moves, path)
     
-    node[uci_char(move)] = {}
+    node[uci_char(move)] ||= {}
     node[uci_char(move)].data = {
       uci: move,
       ...data
