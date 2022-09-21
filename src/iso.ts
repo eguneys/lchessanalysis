@@ -16,6 +16,9 @@ export type Object = string
 export type Arrow = Array<Object>
 export type Idea = Array<Arrow>
 
+const obj_diff_symbols = obj => {
+  return Object.keys(obj).every(_ => Object.keys(obj).every(__ => _ === __ || obj[_][0] !== obj[__][0]))
+}
 
 
 export function match_idea(iso: IsoSituation, sit: MobileSituation, i: Idea) {
@@ -75,13 +78,10 @@ export function match_idea(iso: IsoSituation, sit: MobileSituation, i: Idea) {
         return _res.map(d => ({ ...ctx, [_]: [o], [f]: [d] }))
       }
     })
-
-    return solutions.flatMap(_ctx => step(_i, _ctx))
+    return solutions.flatMap(_ctx => step(_i, _ctx)).filter(_ctx => obj_diff_symbols(_ctx))
   }
 
   return step(i)
-
-  return _is
 }
 
 
