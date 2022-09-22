@@ -10,6 +10,8 @@ export const files_from_side = {
 
 export class Board {
 
+  static get empty() { return new Board(new Map()) }
+
   static from_fen = (fen: string) => {
     let res = fen.split('/').flatMap((rank, i_rank) => {
       let res = []
@@ -72,15 +74,17 @@ export class Board {
 
   in(_: Piese) {
     let [piece, pos] = _.split('@')
-    this.in_piece(piece, pos)
+    return this.in_piece(piece, pos)
   }
 
   in_piece(_: Piece, pos: Pos) {
     this._pieses.set(pos, _)
+    return this
   }
 
   out(_: Pos) {
     this._pieses.delete(_)
+    return this
   }
 
   on(pos: Pos) {
