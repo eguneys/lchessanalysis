@@ -1,4 +1,5 @@
 export * from './types'
+/*
 export * from './board'
 export * from './analysis'
 export * from './rays'
@@ -8,3 +9,4 @@ export * from './iso'
 export * from './iso_rays'
 export * from './iso_situation'
 export * from './fen'
+*/

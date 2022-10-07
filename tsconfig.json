@@ -10,7 +10,8 @@
     "skipLibCheck": true,
     "target": "es2020",
     "tsBuildInfoFile": ".tsbuildinfo",
-    "types": ["@types/node", "vitest/globals"]
+    "types": ["@types/node", "vitest/globals"],
+    "outDir": "dist"
   },
   "include": ["src", "tests"],
   "exclude": ["dist", "node_modules"]

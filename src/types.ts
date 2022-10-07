@@ -1,10 +1,17 @@
-export const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-export const ranks = ['1', '2', '3', '4', '5', '6', '7', '8']
+import { g_map, g_find, gen_fmap, FMap, SMap, AAsMap } from './util'
 
-export const colors = ['w', 'b']
-export const roles = ['r', 'q', 'b', 'n', 'p', 'k']
+export const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const
+export const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'] as const
 
-export const promotables = ['q', 'n', 'r', 'b']
+export const colors = ['w', 'b'] as const
+export const roles = ['r', 'q', 'b', 'n', 'p', 'k'] as const
+export const promotables = ['q', 'n', 'r', 'b'] as const
+
+export type File = typeof files[number]
+export type Rank = typeof ranks[number]
+export type Color = typeof colors[number]
+export type Role = typeof roles[number]
+export type Promotable = typeof promotables[number]
 
 export const poss = files.flatMap(file => ranks.map(rank => file + rank))
 export const pieces = colors.flatMap(color => roles.map(role => color + role))
@@ -17,139 +24,121 @@ export const poss_high_first = ranks_high.flatMap(rank  => files.map(file => fil
 
 export const ods = poss.flatMap(pos => poss.map(_pos => pos + _pos))
 
-export type File = string
-export type Rank = string
 export type Pos = string
-export type Color = string
-export type Role = string
 export type Piece = string
 export type Piese = string
-
 export type Pieses = Array<Piese>
 
+export const f_file: FMap<File> = gen_fmap(files)
+export const f_rank: FMap<Rank> = gen_fmap(ranks)
 
-export const piece_fen = (piece: Piece) => piece[0] === 'w' ? piece[1].toUpperCase() : piece[1]
+export const right: SMap<File> = { 'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e', 'e': 'f', 'f': 'g', 'g': 'h', 'h': undefined}
+export const left: SMap<File> = { 'h': 'g', 'g': 'f', 'f': 'e', 'e': 'd', 'd': 'c', 'c': 'b', 'b': 'a', 'a': undefined}
 
+export const up: SMap<Rank> = { '1': '2', '2': '3', '3': '4', '4': '5', '5': '6', '6': '7', '7': '8', '8': undefined}
+export const down: SMap<Rank> = { '8': '7', '7': '6', '6': '5', '5': '4', '4': '3', '3': '2', '2': '1', '1': undefined}
 
-export const right = { 'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e', 'e': 'f', 'f': 'g', 'g': 'h'}
-export const left = { 'h': 'g', 'g': 'f', 'f': 'e', 'e': 'd', 'd': 'c', 'c': 'b', 'b': 'a'}
-
-export const up = { '1': '2', '2': '3', '3': '4', '4': '5', '5': '6', '6': '7', '7': '8'}
-export const down = { '8': '7', '7': '6', '6': '5', '5': '4', '4': '3', '3': '2', '2': '1'}
-
-export function make_right2(files: Array<A>, right: any) {
-  let res = {}
-
-  files.forEach(file => {
-    let i = right[file]
+export function make_right2<A extends string>(files: FMap<A>, right: SMap<A>) {
+  return g_map(files, file => {
+    let i: A | undefined = right[file]
     if (i) {
-      i= right[i]
-
+      i = right[i]
       if (i) {
-        res[file] = i
+        return i
       }
     }
   })
-  return res
 }
 
-export const right2 = make_right2(files, right)
-export const left2 = make_right2(files, left)
-export const up2 = make_right2(ranks, up)
-export const down2 = make_right2(ranks, down)
+export const right2: SMap<File> = make_right2(f_file, right)
+export const left2: SMap<File> = make_right2(f_file, left)
+export const up2: SMap<Rank> = make_right2(f_rank, up)
+export const down2: SMap<Rank> = make_right2(f_rank, down)
 
-export function make_righter<A>(files: Array<A>, right: any) {
-  let res = {}
+export function make_righter<A extends string>(files: FMap<A>, right: SMap<A>) {
 
-  files.forEach(file => {
+  return g_map(files, file => {
+    let _res: any = {}
 
-    let _res = {}
-
-    let i = file
+    let i: A | undefined = file
     let acc = []
     while ((i = right[i])) {
       _res[i] = acc.slice(0)
       acc.push(i)
     }
-
-    res[file] = _res
+    return _res
   })
-  return res
 }
 
-export const righter = make_righter(files, right)
-export const lefter = make_righter(files, left)
-export const upper = make_righter(ranks, up)
-export const downer = make_righter(ranks, down)
+export const righter: AAsMap<File> = make_righter(f_file, right)
+export const lefter: AAsMap<File> = make_righter(f_file, left)
+export const upper: AAsMap<Rank> = make_righter(f_rank, up)
+export const downer: AAsMap<Rank> = make_righter(f_rank, down)
 
-export function make_king_side(righter: any) {
+export const f_poss: FMap<Pos> = gen_fmap(poss)
+
+export type FileRank = [File, Rank]
+
+export const pos_split = (pos: Pos): FileRank => pos.split('') as FileRank
+
+export function make_king_side(righter: AAsMap<File>) {
   let res = {}
 
-  poss.forEach(pos => {
-    let [file, rank] = pos.split('')
+  return g_map(f_poss, pos => {
+    let [file, rank] = pos_split(pos)
 
-    let _res = {}
+    let _res: any = {}
 
     let _righter = righter[file]
 
-    Object.keys(_righter).map(_right => {
-      let n = _righter[_right].map(f => f + rank)
+    g_map(_righter, (_right, _right_value) => {
+      let n = _right_value.map(f => f + rank)
       _res[_right+rank] = n
     })
-
-    res[pos] = _res
+    return _res
   })
-
-  return res
 }
+export const king_side: AAsMap<Pos> = make_king_side(righter)
+export const queen_side: AAsMap<Pos> = make_king_side(lefter)
 
-export const king_side = make_king_side(righter)
-export const queen_side = make_king_side(lefter)
+export function make_forward(upper: AAsMap<Rank>) {
+  return g_map(f_poss, pos => {
+    let [file, rank] = pos_split(pos)
 
-
-
-export function make_forward(upper: any) {
-  let res = {}
-
-  poss.forEach(pos => {
-    let [file, rank] = pos.split('')
-
-    let _res = {}
+    let _res: any = {}
 
     let _upper = upper[rank]
 
-    Object.keys(_upper).map(_up => {
-      let n = _upper[_up].map(r => file + r)
+    g_map(_upper, (_up, _up_value) => {
+      let n = _up_value.map(r => file + r)
       _res[file+_up] = n
     })
 
-    res[pos] = _res
+    return _res
   })
-
-  return res
 }
 
 
-export const forward = make_forward(upper)
-export const backward = make_forward(downer)
+export const forward: AAsMap<Pos> = make_forward(upper)
+export const backward: AAsMap<Pos> = make_forward(downer)
 
-function zip_pos<A, B>(a: Array<A>, b: Array<B>) {
+function zip_pos<A extends string, B extends string>(a: Array<A>, b: Array<B>) {
   return a.map((_a, i) => _a + b[i])
 }
-export function make_fwd_que(upper: any, lefter: any) {
-  let res = {}
 
-  poss.forEach(pos => {
-    let [file, rank] = pos.split('')
-    let _res = {}
+export function make_fwd_que(upper: AAsMap<Rank>, lefter: AAsMap<File>) {
+  return g_map(f_poss, pos => {
+
+    let [file, rank] = pos_split(pos)
+
+    let _res: any = {}
 
     let _upper = upper[rank]
     let _lefter = lefter[file]
 
-    Object.keys(_upper).map(_up => {
-      let _left = Object.keys(_lefter).find(_left =>
-        _lefter[_left].length === 
-        _upper[_up].length)
+    g_map(_upper, (_up, _up_value) => {
+      let _left = g_find(_lefter, (_left, _left_value) => _lefter[_left].length === _upper[_up].length)
+
       if (_left) {
 
         let n = zip_pos(_lefter[_left], _upper[_up])
@@ -157,59 +146,53 @@ export function make_fwd_que(upper: any, lefter: any) {
         _res[_left + _up] = n
       }
     })
-    res[pos] = _res
-  })
 
-  return res
+    return _res
+  })
 }
 
-export const fwd_que = make_fwd_que(upper, lefter)
-export const fwd_kng = make_fwd_que(upper, righter)
-export const bck_que = make_fwd_que(downer, lefter)
-export const bck_kng = make_fwd_que(downer, righter)
 
-export function make_fwd2_que(up2: any, left: any) {
-  let res = {}
+export const fwd_que: AAsMap<Pos> = make_fwd_que(upper, lefter)
+export const fwd_kng: AAsMap<Pos> = make_fwd_que(upper, righter)
+export const bck_que: AAsMap<Pos> = make_fwd_que(downer, lefter)
+export const bck_kng: AAsMap<Pos> = make_fwd_que(downer, righter)
 
-  poss.forEach(pos => {
-    let [file, rank] = pos.split('')
-    poss.forEach(_pos => {
-    let [_file, _rank] = _pos.split('')
 
-      if (left[file] === _file && up2[rank] === _rank) {
-        res[pos] = _pos
-      }
+export function make_fwd2_que(up2: SMap<Rank>, left: SMap<File>) {
+  return g_map(f_poss, pos => {
+    let [file, rank] = pos_split(pos)
+
+    return g_find(f_poss, _pos => {
+      let [_file, _rank] = pos_split(_pos)
+
+      return (left[file] === _file && up2[rank] === _rank)
     })
   })
-
-  return res
 }
 
-export const fwd2_que = make_fwd2_que(up2, left)
-export const fwd2_kng = make_fwd2_que(up2, right)
-export const fwd_que2 = make_fwd2_que(up, left2)
-export const fwd_kng2 = make_fwd2_que(up, right2) 
 
-export const bck2_que = make_fwd2_que(down2, left)
-export const bck2_kng = make_fwd2_que(down2, right)
-export const bck_que2 = make_fwd2_que(down, left2)
-export const bck_kng2 = make_fwd2_que(down, right2) 
+export const fwd2_que: SMap<Pos> = make_fwd2_que(up2, left)
+export const fwd2_kng: SMap<Pos> = make_fwd2_que(up2, right)
+export const fwd_que2: SMap<Pos> = make_fwd2_que(up, left2)
+export const fwd_kng2: SMap<Pos> = make_fwd2_que(up, right2) 
+
+export const bck2_que: SMap<Pos> = make_fwd2_que(down2, left)
+export const bck2_kng: SMap<Pos> = make_fwd2_que(down2, right)
+export const bck_que2: SMap<Pos> = make_fwd2_que(down, left2)
+export const bck_kng2: SMap<Pos> = make_fwd2_que(down, right2) 
 
 
-export function make_fwdn(forward: any, n: number) {
-  let res = {}
-
-  poss.forEach(pos => {
-    let _pos = Object.keys(forward[pos]).find(_ => forward[pos][_].length === n)
-
+export function make_fwdn(forward: SMap<Pos>, n: number) {
+  return g_map(f_poss, pos => {
+    let _pos = 
+      g_find(forward[pos], 
+             _ => forward[pos][_].length === n)
     if (_pos) {
-
-      res[pos] = { [_pos]: forward[pos][_pos] }
+      return { [_pos]: (forward[pos][_pos] }
     }
   })
-
-  return res 
 }
+/*
 
 export const make_fwd2 = (forward: any) => make_fwdn(forward, 1)
 export const make_fwd1 = (forward: any) => make_fwdn(forward, 0)
@@ -304,4 +287,7 @@ export const black_capture = xy_xfilter(xyn_or([bck_kng1, bck_que1]), black_base
 
 
 
+*/
 
+
+export const piece_fen = (piece: Piece) => piece[0] === 'w' ? piece[1].toUpperCase() : piece[1]
