@@ -1,4 +1,4 @@
-import { g_map, g_find, gen_fmap, FMap, SMap, AAsMap } from './util'
+import { g_filter, g_map, g_find, gen_fmap, GMap, FMap, SMap, AAsMap, AsMap } from './util'
 
 export const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const
 export const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'] as const
@@ -182,71 +182,69 @@ export const bck_que2: SMap<Pos> = make_fwd2_que(down, left2)
 export const bck_kng2: SMap<Pos> = make_fwd2_que(down, right2) 
 
 
-export function make_fwdn(forward: SMap<Pos>, n: number) {
-  return g_map(f_poss, pos => {
+export function make_fwdn(forward: AAsMap<Pos>, n: number) {
+  return g_map(f_poss, (pos: Pos) => {
     let _pos = 
       g_find(forward[pos], 
              _ => forward[pos][_].length === n)
     if (_pos) {
-      return { [_pos]: (forward[pos][_pos] }
+      return { [_pos]: forward[pos][_pos] }
     }
   })
 }
-/*
+
+export type AsuMap = Record<Pos, Array<Pos> | undefined>
+export type GasMap = GMap<Pos, AsuMap | undefined>
+export type GAsuMap = GMap<Pos, Array<Pos> | undefined>
 
 export const make_fwd2 = (forward: any) => make_fwdn(forward, 1)
 export const make_fwd1 = (forward: any) => make_fwdn(forward, 0)
 
-export const fwd2 = make_fwd2(forward)
-export const bck2 = make_fwd2(backward)
+export const fwd2: GasMap = make_fwd2(forward)
+export const bck2: GasMap = make_fwd2(backward)
 
-export const fwd1 = make_fwd1(forward)
-export const bck1 = make_fwd1(backward)
-export const fwd_que1 = make_fwd1(fwd_que)
-export const fwd_kng1 = make_fwd1(fwd_kng)
-export const bck_que1 = make_fwd1(bck_que)
-export const bck_kng1 = make_fwd1(bck_kng)
-export const king_side1 = make_fwd1(king_side)
-export const queen_side1 = make_fwd1(queen_side)
+export const fwd1: GasMap = make_fwd1(forward)
+export const bck1: GasMap = make_fwd1(backward)
+export const fwd_que1: GasMap = make_fwd1(fwd_que)
+export const fwd_kng1: GasMap = make_fwd1(fwd_kng)
+export const bck_que1: GasMap = make_fwd1(bck_que)
+export const bck_kng1: GasMap = make_fwd1(bck_kng)
+export const king_side1: GasMap = make_fwd1(king_side)
+export const queen_side1: GasMap = make_fwd1(queen_side)
 
-export function xy_or(ors: Array<any>) {
-  let res = {}
-
-  poss.forEach(pos => {
-    let _res = []
-    poss.forEach(_pos => {
-      if (ors.map(_ => _[pos] === _pos).find(Boolean)) {
-        _res.push(_pos)
-      }
-    })
-    if (_res.length > 0) {
-      res[pos] = _res
+export function xy_or(ors: Array<SMap<Pos>>) {
+  return g_map(f_poss, (pos: Pos) => {
+    let _ = g_filter(f_poss, (_pos: Pos) =>
+      !!ors.map(_ => _[pos] === _pos).find(Boolean))
+    if (_.length > 0) {
+      return _
     }
   })
-  return res
 }
 
-export const knight = xy_or([fwd2_que, fwd2_kng, bck2_que, bck2_kng, fwd_que2, fwd_kng2, bck_que2, bck_kng2])
+
+export const knight: AsuMap = xy_or([fwd2_que, fwd2_kng, bck2_que, bck2_kng, fwd_que2, fwd_kng2, bck_que2, bck_kng2])
 
 
-export function xyn_or(ors: Array<any>) {
-  let res = {}
-
-  poss.forEach(pos => {
-    let _res = {}
-    poss.forEach(_pos => {
-      ors.forEach(_ => {
-        if (_[pos]?.[_pos]) {
-          _res[_pos] = _[pos][_pos]
+export function xyn_or(ors: Array<GasMap>): GasMap {
+  return g_map(f_poss, (pos: Pos) =>
+    g_map(f_poss, (_pos: Pos) => {
+      let _ = ors.find(_ => _[pos]?.[_pos])
+      if (_) {
+        let __ = _[pos]
+        if (__) {
+          let ___ = __[_pos]
+          if (___) {
+            return ___
+          }
         }
-      })
+      }
     })
-    res[pos] = _res
-  })
-  return res
+  )
 }
 
-export const king_fwd = xyn_or([fwd1, fwd_que1, fwd_kng1])
+
+export const king_fwd: GasMap = xyn_or([fwd1, fwd_que1, fwd_kng1])
 export const king_bck = xyn_or([bck1, bck_que1, bck_kng1])
 export const king_lat = xyn_or([queen_side1, king_side1])
 
@@ -255,20 +253,19 @@ export const rook = xyn_or([forward, backward, queen_side, king_side])
 export const king = xyn_or([king_fwd, king_bck, king_lat])
 export const queen = xyn_or([bishop, rook])
 
+
 export const white_home = (pos: Pos) => pos.split('')[1] === '2'
 export const black_home = (pos: Pos) => pos.split('')[1] === '7'
 
 export const white_base_dif = (pos: Pos) => pos.split('')[1] !== '1'
 export const black_base_dif = (pos: Pos) => pos.split('')[1] !== '8'
 
-export function xy_xfilter(fwd2: any, white_home: any) {
-  let res = {}
-  poss.forEach(pos => {
+export function xy_xfilter(fwd2: GasMap, white_home: (_: Pos) => boolean) {
+  return g_map(f_poss, pos => {
     if (white_home(pos) && fwd2[pos]) {
-      res[pos] = fwd2[pos]
+      return fwd2[pos]
     }
   })
-  return res
 }
 
 export const white_push2 = xy_xfilter(fwd2, white_home)
@@ -283,11 +280,5 @@ export const black_push = xyn_or([black_push2, black_push1])
 
 export const white_capture = xy_xfilter(xyn_or([fwd_kng1, fwd_que1]), white_base_dif)
 export const black_capture = xy_xfilter(xyn_or([bck_kng1, bck_que1]), black_base_dif)
-
-
-
-
-*/
-
 
 export const piece_fen = (piece: Piece) => piece[0] === 'w' ? piece[1].toUpperCase() : piece[1]

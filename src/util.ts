@@ -1,5 +1,15 @@
 export type GMap<A extends string, B> = Record<A, B>
 
+export const g_filter = <A extends string, B>(fs: GMap<A, B>, fn: (key: A, value: B) => boolean): Array<A> => {
+  let _res = []
+  for (let key in fs) {
+    if (fn(key, fs[key])) {
+      _res.push(key)
+    }
+  }
+  return _res
+}
+
 export const g_find = <A extends string, B>(fs: GMap<A, B>, fn: (key: A, value: B) => boolean): A | undefined => {
   for (let key in fs) {
     if (fn(key, fs[key])) {
