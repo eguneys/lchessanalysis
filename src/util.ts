@@ -39,3 +39,31 @@ export const gen_fmap = <A extends string>(fs: Readonly<Array<A>>): FMap<A> => {
   fs.forEach(_ => res[_] = _)
   return res
 }
+
+
+
+
+export const a_map = <A extends string, C>(fs: Array<A>, fn: (key: A) => C): GMap<A, C> => {
+  let res: any = {}
+  fs.forEach(key => {
+    let _res = fn(key)
+    if (_res) {
+      res[key] = _res
+    }
+  })
+  return res
+}
+
+
+export const a_map2 = <A extends string, B extends string, C>(fs: Readonly<Array<A>>, fn: (key: A) => [B, C] | undefined): GMap<B, C> => {
+  let res: any = {}
+  fs.forEach(key => {
+    let _res = fn(key)
+    if (_res) {
+      res[_res[0]] = _res[1]
+    }
+  })
+  return res
+}
+
+

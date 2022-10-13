@@ -11,6 +11,7 @@
     "target": "es2020",
     "tsBuildInfoFile": ".tsbuildinfo",
     "types": ["@types/node", "vitest/globals"],
+    "noEmit": true,
     "outDir": "dist"
   },
   "include": ["src", "tests"],

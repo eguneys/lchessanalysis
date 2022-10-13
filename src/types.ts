@@ -7,6 +7,14 @@ export const colors = ['w', 'b'] as const
 export const roles = ['r', 'q', 'b', 'n', 'p', 'k'] as const
 export const promotables = ['q', 'n', 'r', 'b'] as const
 
+export const sides = ['k', 'q'] as const
+
+export const castles = ['k', 'q', 'K', 'Q'] as const
+
+export type Castle = typeof castles[number]
+export type Castles = string
+
+export type Side = typeof sides[number]
 export type File = typeof files[number]
 export type Rank = typeof ranks[number]
 export type Color = typeof colors[number]
@@ -78,8 +86,18 @@ export const downer: AAsMap<Rank> = make_righter(f_rank, down)
 export const f_poss: FMap<Pos> = gen_fmap(poss)
 
 export type FileRank = [File, Rank]
+export type ColorRole = [Color, Role]
+export type PieseSplit = [Piece, Pos, Color, Role]
 
 export const pos_split = (pos: Pos): FileRank => pos.split('') as FileRank
+
+export const piece_split = (piece: Piece): ColorRole => piece.split('') as ColorRole
+
+export const piese_split = (piese: Piese): PieseSplit => {
+  let [piece, pos] = piese.split('@')
+  let [color, role] = piece_split(piece)
+  return [piece, pos, color, role]
+}
 
 export function make_king_side(righter: AAsMap<File>) {
   let res = {}
