@@ -8,7 +8,7 @@ import { sides, pos_split, piece_split, piese_split } from './types'
 
 export type OD = string
 
-export class MobileRay {
+export class IsoRay {
 
 
   capture_ray(o: Pos) {
@@ -119,13 +119,13 @@ export class MobileRay {
       let [on_o_piece] = on_o.split('@')
       let [on_o_color] = on_o_piece.split('')
 
-      if (on_o_color !== on_d_color) {
+      //if (on_o_color !== on_d_color) {
         board.out(o)
         board.out(d)
         board.in_piece(on_o, d)
 
         return [board, on_o, on_d] as any as [Board]
-      }
+      //}
     }
   }
 

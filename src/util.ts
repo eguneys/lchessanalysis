@@ -18,7 +18,7 @@ export const g_find = <A extends string, B>(fs: GMap<A, B>, fn: (key: A, value: 
   }
 }
 
-export const g_map = <A extends string, B, C>(fs: GMap<A, B>, fn: (key: A, value: B) => C): GMap<A, C> => {
+export const g_map = <A extends string, B, C>(fs: GMap<A, B>, fn: (key: A, value: B) => C | undefined): GMap<A, C> => {
   let res: any = {}
   for (let key in fs) {
     let _res = fn(key, fs[key])
@@ -43,7 +43,7 @@ export const gen_fmap = <A extends string>(fs: Readonly<Array<A>>): FMap<A> => {
 
 
 
-export const a_map = <A extends string, C>(fs: Array<A>, fn: (key: A) => C): GMap<A, C> => {
+export const a_map = <A extends string, C>(fs: Array<A>, fn: (key: A) => C | undefined): GMap<A, C> => {
   let res: any = {}
   fs.forEach(key => {
     let _res = fn(key)

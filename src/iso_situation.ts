@@ -1,10 +1,15 @@
 import { Board } from './board'
-import { MobileRay } from './rays'
-import { arr_map, obj_map, obj2_arr } from './util'
+import { IsoRay, OD } from './iso_rays'
+import { Castles, Color, Pos } from './types'
+import { a_map, g_map, GMap } from './util'
 
+export const opposite: Record<Color, Color> = {
+  w: 'b',
+  b: 'w'
+}
 
-export function d_or(d_ors: Array<any>) {
-  let res = {}
+export function d_or<A>(d_ors: Array<GMap<Pos, A>>): GMap<Pos, A> {
+  let res: any = {}
 
   d_ors.forEach(d_or => Object.keys(d_or).forEach(key => {
     res[key] = d_or[key]
@@ -13,18 +18,16 @@ export function d_or(d_ors: Array<any>) {
   return res
 }
 
-export type Castles = string
-
-export class MobileSituation {
+export class IsoSituation {
 
   static from_fen = (fen: string) => {
     let [pieses, turn, castles] = fen.split(' ')
 
     let board = Board.from_fen(pieses)
-    return new MobileSituation(turn, board, castles)
+    return new IsoSituation(turn as Color, board, castles)
   }
 
-  mobile_situation(o: O) {
+  mobile_situation(o: Pos) {
 
     let on_p = this.board.on(o)
     if (!on_p) {
@@ -32,47 +35,44 @@ export class MobileSituation {
     }
 
     let [color, role] = on_p
+    /*
     if (color !== this.turn) {
       return undefined
     }
+   */
 
     let d_mobile = d_or([
-      this.rays.mobile_ray(o),
-      this.rays.mobile_pawn(o),
-      this.rays.capture_ray(o),
-      this.rays.capture_pawn(o),
-      this.rays.castle(o)
+      this.rays.mobile_ray(o) || {},
+      this.rays.mobile_pawn(o) || {},
+      this.rays.capture_ray(o) || {},
+      this.rays.capture_pawn(o) || {},
+      this.rays.castle(o) || {}
     ].filter(Boolean))
 
 
 
     if (Object.keys(d_mobile).length > 0) {
-      return obj_map(d_mobile, (d, mobile) => {
+      return g_map(d_mobile, (d, mobile) => {
         let [board] = mobile
-        mobile[0] = this.opposite(board)
-        return mobile
+        return [this.opposite(board)]
       })
     }
   }
 
   opposite(board: Board) {
-    let opposite = this.turn === 'w' ? 'b' : 'w'
-    return new MobileSituation(opposite, board, this._castles)
+    return new IsoSituation(opposite[this.turn], board, this._castles)
   }
 
   same(board: Board) {
-    return new MobileSituation(this.turn, board, this._castles)
+    return new IsoSituation(this.turn, board, this._castles)
   }
 
-  with_board(fn: (_: Board) => void) {
+  with_board(fn: (_: Board) => Board) {
     return this.same(fn(this.board))
   }
 
   get allowed_mobiles() {
-    if (!this._c_mobiles) {
-      this._c_mobiles = arr_map(this.board.poss, o => this.mobile_situation(o))
-    }
-    return this._c_mobiles
+    return a_map(this.board.poss, o => this.mobile_situation(o))
   }
 
   get ods() {
@@ -82,7 +82,7 @@ export class MobileSituation {
 
   od(od: OD) {
     let [o, d] = [od.slice(0, 2), od.slice(2)]
-    return this.allowed_mobiles[o][d]
+    return this.allowed_mobiles[o]?.[d]
   }
 
   o_ds(o: Pos) {
@@ -98,7 +98,9 @@ export class MobileSituation {
     return [this._board.fen, this.turn, this._castles].join(' ')
   }
 
+  rays: IsoRay
+
   constructor(readonly turn: Color, readonly _board: Board, readonly _castles: Castles) {
-    this.rays = new MobileRay(_board, _castles)
+    this.rays = new IsoRay(_board, _castles)
   }
 }
