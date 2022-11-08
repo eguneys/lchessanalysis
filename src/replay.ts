@@ -7,42 +7,44 @@ export type ODP = string
 
 export type Path = string
 
-export type NodeData = {
-  uci?: string,
-  comment?: string
-}
+export class Node {
 
-export type Node = {
-  [k: ODP]: Node
-} & {
-  data?: NodeData,
-}
-
-function data_flat(data: NodeData) {
-  return `{${[data.uci, data.comment].join(' ')}}`
-}
-
-function node_arr(path: Path, moves: Node): Array<string> {
-  if (!moves) {
-    return []
-  } else {
-    return Object.keys(moves).flatMap(move => {
-      if (move === 'data') {
-        return [path, data_flat(moves[move]!)].join('_separator_')
-      }
-      let _path = path + move
-      return node_arr(_path, moves[move])
-    })
+  static from_uci = (uci: string, comment?: string) => {
+    return new Node([],
+                    uci_char(uci),
+                    uci, 
+                    comment)
   }
+
+  get flat() {
+    return `{${[this.uci, this.comment].join(' ')}}`
+  }
+
+  add_node(node: Node) {
+    this.children.push(node)
+  }
+
+  constructor(readonly children: Array<Node>,
+              readonly path: Path,
+              readonly uci: string,
+              readonly comment?: string) {}
+}
+
+function node_arr(path: Path, root: Node): Array<string> {
+  return [
+    [path, root.flat].join('_separator_'),
+    ...root.children.flatMap(node => node_arr(path + node.path, node))
+  ]
 }
 
 function find_path(node: Node, path: Path): Node {
-  if (path === '') {
+  if (path === node.path) {
     return node
   }
   let [head, rest] = [path.slice(0, 2), path.slice(2)]
+  let rest2 = rest.slice(0, 2)
 
-  return find_path(node[head], rest)
+  return find_path(node.children.find(_ => _.path === rest2)!, rest)
 }
 
 function follow_path(node: Node, path: Path, acc: Array<Node>): Array<Node> {
@@ -50,69 +52,51 @@ function follow_path(node: Node, path: Path, acc: Array<Node>): Array<Node> {
     return [...acc, node]
   }
   let [head, rest] = [path.slice(0, 2), path.slice(2)]
-  return follow_path(node[head], rest, [...acc, node])
+  return follow_path(node.children.find(_ => _.path === head)!, rest, [...acc, node])
 }
 
 export class Replay {
 
 
-  static from_fen = (fen: Fen) => {
-    return new Replay(MobileSituation.from_fen(fen), {})
+  static from_fen = (fen: Fen, ucis: string) => {
+
+    let [head, rest] = [ucis.slice(0, 4), ucis.slice(4)]
+
+    let root = Node.from_uci(head)
+
+    let _ = new Replay(MobileSituation.from_fen(fen), root)
+    if (rest) {
+      _.play_ucis(root.path, rest)
+    }
+    return _
   }
 
   follow_path(path: Path) {
-    return follow_path(this._moves, path, [])
+    return follow_path(this.root, path, [])
   }
 
-  path(path: Path) {
-    return find_path(this._moves, path)
+  find_path(path: Path) {
+    return find_path(this.root, path)
   }
 
-  remove(path: Path) {
-    let [_path, move] = [path.slice(0, -2), path.slice(-2)]
-    let node = find_path(this._moves, path)
-    delete node[uci_char(move)]
+  move(path: Path, uci: string, _: { comment?: string } = {}) {
+    let node = Node.from_uci(uci, _.comment)
+
+    let root = find_path(this.root, path)
+    root.add_node(node)
+    return path + node.path
   }
 
-  move(path: Path, move: ODP, data: NodeData = {}) {
-    let node = find_path(this._moves, path)
-    
-    node[uci_char(move)] ||= {}
-    node[uci_char(move)].data = {
-      uci: move,
-      ...data
-    }
-  }
-
-  data(path: Path, data: NodeData) {
-
-    let node = find_path(this._moves, path)
-    if (data) { 
-      node.data = data
-    }
-    return node.data
-  }
-
-  play_ucis(ucis: string, path: string = '') {
-    return ucis.split(' ').reduce((root, uci) => {
-      let _ = uci_char(uci)
-
-      this.move(root, uci)
-      return root + _
-    }, path)
+  play_ucis(path: Path, ucis: string) {
+    ucis.split(' ').reduce((path, uci) => this.move(path, uci), path)
   }
 
   get replay() {
-    return [this.situation.fen, node_arr('', this._moves).join('\n')].join('\n\n')
+    return [this.situation.fen, node_arr(this.root.path, this.root).join('\n')].join('\n\n')
   }
 
 
-  get moves() {
-    return []
-  }
-
-
-  constructor(readonly situation: MobileSituation, readonly _moves: Node) {}
+  constructor(readonly situation: MobileSituation, readonly root: Node) {}
 
 }
 
