@@ -6,7 +6,7 @@ import { GasMap, AsuMap } from './types'
 import { Role, Pos, Castles, Color, Side, File, Rank } from './types'
 import { sides, pos_split, piece_split, piese_split } from './types'
 
-export type OD = string
+type OD = string
 
 export class IsoRay {
 
@@ -196,42 +196,42 @@ export class IsoRay {
   constructor(readonly _board: Board, readonly _castles: Castles) {}
 }
 
-export const isRayRole = (_: Role): _ is RayRole => {
+const isRayRole = (_: Role): _ is RayRole => {
   return ray_roles.includes(_ as RayRole)
 }
 
-export const ray_roles = ['r', 'q', 'b', 'k'] as const
-export type RayRole = typeof ray_roles[number]
+const ray_roles = ['r', 'q', 'b', 'k'] as const
+type RayRole = typeof ray_roles[number]
 
-export type NightRole = 'n'
+type NightRole = 'n'
 
-export const ray_route: Record<RayRole, GasMap> = {
+const ray_route: Record<RayRole, GasMap> = {
   b: bishop,
   q: queen,
   r: rook,
   k: king
 }
 
-export const night_route: Record<NightRole, AsuMap> = {
+const night_route: Record<NightRole, AsuMap> = {
   n: knight
 }
 
-export const pawn_push = {
+const pawn_push = {
   w: white_push,
   b: black_push
 }
 
-export const pawn_capture = {
+const pawn_capture = {
   w: white_capture,
   b: black_capture
 }
 
-export const turn_base: Record<Color, Rank> = {
+const turn_base: Record<Color, Rank> = {
   w: '1',
   b: '8'
 }
 
-export const castled_king_rook_file: Record<Side, [File, File]> = {
+const castled_king_rook_file: Record<Side, [File, File]> = {
   'k': ['g', 'f'],
   'q': ['c', 'd']
 }

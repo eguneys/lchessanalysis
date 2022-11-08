@@ -28,7 +28,7 @@ function node_arr(path: Path, moves: Node): Array<string> {
   } else {
     return Object.keys(moves).flatMap(move => {
       if (move === 'data') {
-        return [path, data_flat(moves[move]!)].join('___')
+        return [path, data_flat(moves[move]!)].join('_separator_')
       }
       let _path = path + move
       return node_arr(_path, moves[move])
@@ -93,13 +93,13 @@ export class Replay {
     return node.data
   }
 
-  play_ucis(ucis: string) {
-    ucis.split(' ').reduce((root, uci) => {
+  play_ucis(ucis: string, path: string = '') {
+    return ucis.split(' ').reduce((root, uci) => {
       let _ = uci_char(uci)
 
       this.move(root, uci)
       return root + _
-    }, '')
+    }, path)
   }
 
   get replay() {

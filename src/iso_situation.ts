@@ -1,14 +1,15 @@
 import { Board } from './board'
-import { IsoRay, OD } from './iso_rays'
+import { OD } from './rays'
+import { IsoRay } from './iso_rays'
 import { Castles, Color, Pos } from './types'
 import { a_map, g_map, GMap } from './util'
 
-export const opposite: Record<Color, Color> = {
+const opposite: Record<Color, Color> = {
   w: 'b',
   b: 'w'
 }
 
-export function d_or<A>(d_ors: Array<GMap<Pos, A>>): GMap<Pos, A> {
+function d_or<A>(d_ors: Array<GMap<Pos, A>>): GMap<Pos, A> {
   let res: any = {}
 
   d_ors.forEach(d_or => Object.keys(d_or).forEach(key => {
