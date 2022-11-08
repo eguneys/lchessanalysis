@@ -21,6 +21,9 @@ export class Node {
   }
 
   add_node(node: Node) {
+    if (this.children.find(_ => _.path === node.path)) {
+      return
+    }
     this.children.push(node)
   }
 
@@ -37,34 +40,37 @@ function node_arr(path: Path, root: Node): Array<string> {
   ]
 }
 
-function find_path(node: Node, path: Path): Node {
+function find_path(node: Node, path: Path): Node | undefined {
   if (path === node.path) {
     return node
   }
   let [head, rest] = [path.slice(0, 2), path.slice(2)]
   let rest2 = rest.slice(0, 2)
-
-  return find_path(node.children.find(_ => _.path === rest2)!, rest)
+  let child = node.children.find(_ => _.path === rest2)
+  if (child) {
+    return find_path(child, rest)
+  }
 }
 
 function follow_path(node: Node, path: Path, acc: Array<Node>): Array<Node> {
-  if (path === '') {
+  if (path === node.path) {
     return [...acc, node]
   }
   let [head, rest] = [path.slice(0, 2), path.slice(2)]
-  return follow_path(node.children.find(_ => _.path === head)!, rest, [...acc, node])
+  let rest2 = rest.slice(0, 2)
+  return follow_path(node.children.find(_ => _.path === rest2)!, rest, [...acc, node])
 }
 
 export class Replay {
 
 
-  static from_fen = (fen: Fen, ucis: string) => {
+  static from_fen = (ucis: string) => {
 
     let [head, rest] = [ucis.slice(0, 4), ucis.slice(4)]
 
     let root = Node.from_uci(head)
 
-    let _ = new Replay(MobileSituation.from_fen(fen), root)
+    let _ = new Replay(root)
     if (rest) {
       _.play_ucis(root.path, rest)
     }
@@ -83,20 +89,23 @@ export class Replay {
     let node = Node.from_uci(uci, _.comment)
 
     let root = find_path(this.root, path)
+    if (!root) {
+      return undefined
+    }
     root.add_node(node)
     return path + node.path
   }
 
   play_ucis(path: Path, ucis: string) {
-    ucis.split(' ').reduce((path, uci) => this.move(path, uci), path)
+    return ucis.split(' ').reduce<string | undefined>((path, uci) => path && this.move(path, uci), path)
   }
 
   get replay() {
-    return [this.situation.fen, node_arr(this.root.path, this.root).join('\n')].join('\n\n')
+    return [node_arr(this.root.path, this.root).join('\n')].join('\n\n')
   }
 
 
-  constructor(readonly situation: MobileSituation, readonly root: Node) {}
+  constructor(readonly root: Node) {}
 
 }
 
