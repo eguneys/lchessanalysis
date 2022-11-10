@@ -63,8 +63,11 @@ function follow_path(node: Node, path: Path, acc: Array<Node>): Array<Node> {
 
 export class Replay {
 
+  static from_replay = (replay: string) => {
 
-  static from_fen = (ucis: string) => {
+  }
+
+  static from_ucis = (ucis: string) => {
 
     let [head, rest] = [ucis.slice(0, 4), ucis.slice(4)]
 
