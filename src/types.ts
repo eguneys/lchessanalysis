@@ -204,8 +204,8 @@ export function make_fwdn(forward: AAsMap<Pos>, n: number): GasMap {
              _ => forward[pos][_].length === n)
     if (_pos) {
       // return { [_pos]: forward[pos][_pos] }
-      return g_map(f_poss, (pos: Pos) => {
-        if (pos === _pos) {
+      return g_map(f_poss, (__pos: Pos) => {
+        if (__pos === _pos) {
           return forward[pos][_pos]
         }
       })
