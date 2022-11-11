@@ -1,18 +1,19 @@
+import { Fen, fen_split } from './fen'
 import { Board } from './board'
-import { OD } from './rays'
 import { IsoRay } from './iso_rays'
-import { Castles, Color, Pos } from './types'
+import { od_split, OD, Color, Pos } from './types'
 import { a_map, g_map, GMap } from './util'
+import { Castles } from './castles'
 
 const opposite: Record<Color, Color> = {
   w: 'b',
   b: 'w'
 }
 
-function d_or<A>(d_ors: Array<GMap<Pos, A>>): GMap<Pos, A> {
+function d_or<A>(d_ors: Array<GMap<Pos, A> | undefined>): GMap<Pos, A> {
   let res: any = {}
 
-  d_ors.forEach(d_or => Object.keys(d_or).forEach(key => {
+  d_ors.forEach(d_or => d_or && (Object.keys(d_or) as Array<Pos>).forEach(key => {
     res[key] = d_or[key]
   }))
 
@@ -21,14 +22,15 @@ function d_or<A>(d_ors: Array<GMap<Pos, A>>): GMap<Pos, A> {
 
 export class IsoSituation {
 
-  static from_fen = (fen: string) => {
-    let [pieses, turn, castles] = fen.split(' ')
+  static from_fen = (fen: Fen) => {
+    let [board_fen, turn, castles_fen] = fen_split(fen)
 
-    let board = Board.from_fen(pieses)
+    let board = Board.from_fen(board_fen)
+    let castles = Castles.from_fen(castles_fen)
     return new IsoSituation(turn as Color, board, castles)
   }
 
-  mobile_situation(o: Pos) {
+  mobile_situation(o: Pos): GMap<Pos, [IsoSituation] | undefined> | undefined {
 
     let on_p = this.board.on(o)
     if (!on_p) {
@@ -43,19 +45,21 @@ export class IsoSituation {
    */
 
     let d_mobile = d_or([
-      this.rays.mobile_ray(o) || {},
-      this.rays.mobile_pawn(o) || {},
-      this.rays.capture_ray(o) || {},
-      this.rays.capture_pawn(o) || {},
-      this.rays.castle(o) || {}
+      this.rays.mobile_ray(o),
+      this.rays.mobile_pawn(o),
+      this.rays.capture_ray(o),
+      this.rays.capture_pawn(o),
+      this.rays.castle(o)
     ].filter(Boolean))
 
 
 
     if (Object.keys(d_mobile).length > 0) {
       return g_map(d_mobile, (d, mobile) => {
-        let [board] = mobile
-        return [this.opposite(board)]
+        if (mobile) {
+          let [board] = mobile
+          return [this.opposite(board)]
+        }
       })
     }
   }
@@ -72,17 +76,17 @@ export class IsoSituation {
     return this.same(fn(this.board))
   }
 
-  get allowed_mobiles() {
+  get allowed_mobiles(): GMap<Pos, GMap<Pos, [IsoSituation] | undefined>> {
     return a_map(this.board.poss, o => this.mobile_situation(o))
   }
 
   get ods() {
-    return Object.keys(this.allowed_mobiles)
-    .flatMap(o => Object.keys(this.allowed_mobiles[o]).map(d => o + d))
+    return (Object.keys(this.allowed_mobiles) as Array<Pos>)
+    .flatMap(o => (Object.keys(this.allowed_mobiles[o]) as Array<Pos>).map(d => `${o}${d}`))
   }
 
   od(od: OD) {
-    let [o, d] = [od.slice(0, 2), od.slice(2)]
+    let [o, d] = od_split(od)
     return this.allowed_mobiles[o]?.[d]
   }
 

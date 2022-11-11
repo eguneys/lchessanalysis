@@ -3,10 +3,9 @@ import { white_push, black_push, white_capture, black_capture } from './types'
 import { Board } from './board'
 import { GMap, g_map, a_map, a_map2 } from './util'
 import { GasMap, AsuMap } from './types'
-import { Role, Pos, Castles, Color, Side, File, Rank } from './types'
+import { Role, Pos, Color, Side, File, Rank } from './types'
 import { sides, pos_split, piece_split, piese_split } from './types'
-
-export type OD = string
+import { castles, Castles } from './castles'
 
 export class MobileRay {
 
@@ -39,7 +38,7 @@ export class MobileRay {
 
 
 
-  capture_pawn(o: Pos): GMap<Pos, [Board]> | undefined  {
+  capture_pawn(o: Pos): GMap<Pos, [Board] | undefined> | undefined  {
     let on_p = this._board.on(o)
     if (on_p) {
       let [piece, pos, color, role] = piese_split(on_p)
@@ -59,7 +58,7 @@ export class MobileRay {
 
 
 
-  mobile_pawn(o: Pos): GMap<Pos, [Board]> | undefined {
+  mobile_pawn(o: Pos): GMap<Pos, [Board] | undefined> | undefined {
     let on_p = this._board.on(o)
     if (on_p) {
       let [piece, pos, color, role] = piese_split(on_p)
@@ -83,7 +82,7 @@ export class MobileRay {
   }
 
 
-  mobile_ray(o: Pos): GMap<Pos, [Board]> | undefined {
+  mobile_ray(o: Pos): GMap<Pos, [Board] | undefined> | undefined {
     let on_piece = this._board.on(o)
     if (on_piece) {
       let [color, role] = piece_split(on_piece)
@@ -147,9 +146,9 @@ export class MobileRay {
       if (on_piece) {
         let [color, role] = piece_split(on_piece)
         if (role === 'k') {
-          let castles_sign = color === 'w' ? side.toUpperCase() : side
+          let castles_sign = castles_sign_by[side][color]
 
-          if (!this.castles[castles_sign]) {
+          if (!this.castles.get(castles_sign)) {
             return undefined
           }
 
@@ -161,39 +160,29 @@ export class MobileRay {
           if (!rof) {
             return undefined
           }
-          let d = kdf + base
+          let d: Pos = `${kdf}${base}`
           let ko = o
-          let ro = (rof + base)
+          let ro: Pos = `${rof}${base}`
           let kd = d
-          let rd = (rdf + base)
+          let rd: Pos = `${rdf}${base}`
 
           let { board } = this
 
           board.out(ko)
           board.out(ro)
-          board.in_piece(color+'k', kd)
-          board.in_piece(color+'r', rd)
+          board.in_piece(`${color}k`, kd)
+          board.in_piece(`${color}r`, rd)
           return [kd, ([board, side] as any as [Board])]
         }
       }
     })
   }
 
-  get castles() {
-    let res: any = {}
-
-    let _ = this._castles.split('')
-
-    _.forEach(_ => res[_] = true)
-
-    return res
-  }
-
   get board() {
     return this._board.clone
   }
 
-  constructor(readonly _board: Board, readonly _castles: Castles) {}
+  constructor(readonly _board: Board, readonly castles: Castles) {}
 }
 
 export const isRayRole = (_: Role): _ is RayRole => {
@@ -234,4 +223,9 @@ export const turn_base: Record<Color, Rank> = {
 export const castled_king_rook_file: Record<Side, [File, File]> = {
   'k': ['g', 'f'],
   'q': ['c', 'd']
+}
+
+export const castles_sign_by: Record<Side, Record<Color, typeof castles[number]>> = {
+  'k': { 'w': 'K', 'b': 'k' },
+  'q': { 'w': 'Q', 'b': 'q' }
 }

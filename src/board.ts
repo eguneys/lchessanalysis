@@ -1,7 +1,8 @@
-import { Side, Rank, File } from './types'
+import { BoardFen } from './fen'
+import { Role, Color, Side, Rank, File } from './types'
 import { Pieses, Piese, Piece, Pos } from './types'
 import { poss_high_first } from './types'
-import { piece_fen } from './types'
+import { piese_split, piece_fen } from './types'
 import { files, ranks, roles } from './types'
 
 export const files_from_side: Record<Side, Array<File>> = {
@@ -13,17 +14,17 @@ export class Board {
 
   static get empty() { return new Board(new Map()) }
 
-  static from_fen = (fen: string) => {
+  static from_fen = (fen: BoardFen) => {
     let res: Array<[Pos, Piece]> = fen.split('/').flatMap((rank, i_rank) => {
       let res: Array<[Pos, Piece]> = []
       let i_file = 0
       rank.split('').forEach(char => {
         let i_role = roles.indexOf(char.toLowerCase() as any)
         if (i_role > -1) {
-          let role = roles[i_role]
-          let color = char.toLowerCase() === char ? 'b' : 'w'
-          let piece = color + role
-          let pos = files[i_file] + ranks[7-i_rank]
+          let role: Role = roles[i_role]
+          let color: Color = char.toLowerCase() === char ? 'b' : 'w'
+          let piece: Piece = color + role
+          let pos: Pos = `${files[i_file]}${ranks[7-i_rank]}`
           res.push([pos, piece])
           i_file++
         } else {
@@ -38,7 +39,7 @@ export class Board {
 
   static from_pieses = (_pieses: Pieses) => {
     return new Board(new Map(_pieses.map(_ => {
-      let [piece, pos] = _.split('@')
+      let [piece, pos] = piese_split(_)
 
       return [pos, piece]
     })))
@@ -46,7 +47,7 @@ export class Board {
 
   get fen() {
     return poss_high_first
-    .reduce(([out, rank, file, spaces], pos) => {
+    .reduce(([out, rank, file, spaces], pos: Pos) => {
 
       let piese = this._pieses.get(pos)
       if (!piese) {
@@ -75,7 +76,7 @@ export class Board {
   }
 
   in(_: Piese) {
-    let [piece, pos] = _.split('@')
+    let [piece, pos] = piese_split(_)
     return this.in_piece(piece, pos)
   }
 
@@ -95,7 +96,7 @@ export class Board {
 
   rook_file_at_side(rank: Rank, side: Side) {
     return files_from_side[side].find(file => {
-      let pos = file + rank
+      let pos: Pos = `${file}${rank}`
       if (this._pieses.get(pos)?.[1] === 'r') {
         return true
       }

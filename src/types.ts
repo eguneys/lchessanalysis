@@ -9,11 +9,6 @@ export const promotables = ['q', 'n', 'r', 'b'] as const
 
 export const sides = ['k', 'q'] as const
 
-export const castles = ['k', 'q', 'K', 'Q'] as const
-
-export type Castle = typeof castles[number]
-export type Castles = string
-
 export type Side = typeof sides[number]
 export type File = typeof files[number]
 export type Rank = typeof ranks[number]
@@ -21,18 +16,20 @@ export type Color = typeof colors[number]
 export type Role = typeof roles[number]
 export type Promotable = typeof promotables[number]
 
-export const poss = files.flatMap(file => ranks.map(rank => file + rank))
+export type Pos = `${File}${Rank}`
+export type OD = `${Pos}${Pos}`
+
+export const poss: Array<Pos> = files.flatMap((file: File) => ranks.map((rank: Rank) => `${file}${rank}` as Pos))
 export const pieces = colors.flatMap(color => roles.map(role => color + role))
 
 export const pieses = pieces.flatMap(piece => poss.map(pos => [piece, pos].join('@')))
 
 export const ranks_high = ranks.slice(0).reverse()
-export const poss_sorted = ranks.flatMap(rank => files.map(file => file + rank))
-export const poss_high_first = ranks_high.flatMap(rank  => files.map(file => file + rank))
+export const poss_sorted = ranks.flatMap(rank => files.map(file => `${file}${rank}` as const))
+export const poss_high_first = ranks_high.flatMap(rank  => files.map(file => `${file}${rank}` as const))
 
-export const ods = poss.flatMap(pos => poss.map(_pos => pos + _pos))
+export const ods = poss.flatMap(pos => poss.map(_pos => `${pos}${_pos}` as const))
 
-export type Pos = string
 export type Piece = string
 export type Piese = string
 export type Pieses = Array<Piese>
@@ -89,12 +86,12 @@ export type FileRank = [File, Rank]
 export type ColorRole = [Color, Role]
 export type PieseSplit = [Piece, Pos, Color, Role]
 
+export const od_split = (od: OD): [Pos, Pos] => [od.slice(0, 2) as Pos, od.slice(2) as Pos]
 export const pos_split = (pos: Pos): FileRank => pos.split('') as FileRank
-
 export const piece_split = (piece: Piece): ColorRole => piece.split('') as ColorRole
 
 export const piese_split = (piese: Piese): PieseSplit => {
-  let [piece, pos] = piese.split('@')
+  let [piece, pos] = piese.split('@') as [Piece, Pos]
   let [color, role] = piece_split(piece)
   return [piece, pos, color, role]
 }
@@ -119,7 +116,7 @@ export function make_king_side(righter: AAsMap<File>) {
 export const king_side: AAsMap<Pos> = make_king_side(righter)
 export const queen_side: AAsMap<Pos> = make_king_side(lefter)
 
-export function make_forward(upper: AAsMap<Rank>) {
+export function make_forward(upper: AAsMap<Rank>): AAsMap<Pos> {
   return g_map(f_poss, pos => {
     let [file, rank] = pos_split(pos)
 
@@ -200,13 +197,18 @@ export const bck_que2: SMap<Pos> = make_fwd2_que(down, left2)
 export const bck_kng2: SMap<Pos> = make_fwd2_que(down, right2) 
 
 
-export function make_fwdn(forward: AAsMap<Pos>, n: number) {
+export function make_fwdn(forward: AAsMap<Pos>, n: number): GasMap {
   return g_map(f_poss, (pos: Pos) => {
-    let _pos = 
+    const _pos: Pos | undefined = 
       g_find(forward[pos], 
              _ => forward[pos][_].length === n)
     if (_pos) {
-      return { [_pos]: forward[pos][_pos] }
+      // return { [_pos]: forward[pos][_pos] }
+      return g_map(f_poss, (pos: Pos) => {
+        if (pos === _pos) {
+          return forward[pos][_pos]
+        }
+      })
     }
   })
 }
@@ -215,8 +217,8 @@ export type AsuMap = Record<Pos, Array<Pos> | undefined>
 export type GasMap = GMap<Pos, AsuMap | undefined>
 export type GAsuMap = GMap<Pos, Array<Pos> | undefined>
 
-export const make_fwd2 = (forward: any) => make_fwdn(forward, 1)
-export const make_fwd1 = (forward: any) => make_fwdn(forward, 0)
+export const make_fwd2 = (forward: AAsMap<Pos>): GasMap => make_fwdn(forward, 1)
+export const make_fwd1 = (forward: AAsMap<Pos>): GasMap => make_fwdn(forward, 0)
 
 export const fwd2: GasMap = make_fwd2(forward)
 export const bck2: GasMap = make_fwd2(backward)

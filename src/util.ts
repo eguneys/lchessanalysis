@@ -18,13 +18,11 @@ export const g_find = <A extends string, B>(fs: GMap<A, B>, fn: (key: A, value: 
   }
 }
 
-export const g_map = <A extends string, B, C>(fs: GMap<A, B>, fn: (key: A, value: B) => C | undefined): GMap<A, C> => {
+export const g_map = <A extends string, B, C>(fs: GMap<A, B>, fn: (key: A, value: B) => C | undefined): GMap<A, C | undefined> => {
   let res: any = {}
   for (let key in fs) {
     let _res = fn(key, fs[key])
-    if (_res) {
-      res[key] = _res
-    }
+    res[key] = _res
   }
   return res
 }

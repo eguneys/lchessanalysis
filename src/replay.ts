@@ -1,9 +1,10 @@
 import { MobileSituation } from './situation'
-import { poss, files, promotables, Promotable, Pos, File } from './types'
+import { OD, poss, files, promotables, Promotable, Pos, File } from './types'
 import { a_map } from './util'
 
-export type Fen = string
-export type ODP = string
+export type ODP = `${OD}=${Promotable}`
+
+export type ODorP = OD | ODP
 
 export type Path = string
 
