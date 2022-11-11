@@ -87,7 +87,7 @@ export class Node {
 
   constructor(readonly children: Array<Node>,
               readonly path: Path,
-              readonly uci: string,
+              readonly uci: UCI,
               readonly comment?: string) {}
 }
 

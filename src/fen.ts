@@ -10,4 +10,4 @@ export function fen_split(fen: Fen): [BoardFen, Color, CastlesFen] {
   return fen.split(' ') as [BoardFen, Color, CastlesFen]
 }
 
-export const initial_fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq'
+export const initial_fen: Fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq' as Fen
