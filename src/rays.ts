@@ -41,7 +41,7 @@ export class MobileRay {
   capture_pawn(o: Pos): GMap<Pos, [Board] | undefined> | undefined  {
     let on_p = this._board.on(o)
     if (on_p) {
-      let [piece, pos, color, role] = piese_split(on_p)
+      let [color, role] = piece_split(on_p)
 
       if (role === 'p') {
 
@@ -61,7 +61,7 @@ export class MobileRay {
   mobile_pawn(o: Pos): GMap<Pos, [Board] | undefined> | undefined {
     let on_p = this._board.on(o)
     if (on_p) {
-      let [piece, pos, color, role] = piese_split(on_p)
+      let [color, role] = piece_split(on_p)
 
       if (role === 'p') {
 

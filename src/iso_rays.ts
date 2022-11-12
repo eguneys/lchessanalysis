@@ -43,7 +43,7 @@ export class IsoRay {
   capture_pawn(o: Pos): GMap<Pos, [Board] | undefined> | undefined  {
     let on_p = this._board.on(o)
     if (on_p) {
-      let [piece, pos, color, role] = piese_split(on_p)
+      let [color, role] = piece_split(on_p)
 
       if (role === 'p') {
 
@@ -63,7 +63,7 @@ export class IsoRay {
   mobile_pawn(o: Pos): GMap<Pos, [Board] | undefined> | undefined {
     let on_p = this._board.on(o)
     if (on_p) {
-      let [piece, pos, color, role] = piese_split(on_p)
+      let [color, role] = piece_split(on_p)
 
       if (role === 'p') {
 
@@ -173,8 +173,8 @@ export class IsoRay {
 
           board.out(ko)
           board.out(ro)
-          board.in_piece(color+'k', kd)
-          board.in_piece(color+'r', rd)
+          board.in_piece(`${color}k`, kd)
+          board.in_piece(`${color}r`, rd)
           return [kd, ([board, side] as any as [Board])]
         }
       }

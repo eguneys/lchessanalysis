@@ -1,3 +1,4 @@
+import { UCI } from './replay'
 import { Fen, fen_split } from './fen'
 import { Castles } from './castles'
 import { Board } from './board'
@@ -78,7 +79,7 @@ export class MobileSituation {
     return a_map(this.board.poss, o => this.mobile_situation(o))
   }
 
-  get ods() {
+  get ods(): Array<UCI> {
     return (Object.keys(this.allowed_mobiles) as Array<Pos>)
     .flatMap((o: Pos) => (Object.keys(this.allowed_mobiles[o]) as Array<Pos>).map((d: Pos) => `${o}${d}` as const))
   }

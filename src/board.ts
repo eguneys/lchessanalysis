@@ -23,7 +23,7 @@ export class Board {
         if (i_role > -1) {
           let role: Role = roles[i_role]
           let color: Color = char.toLowerCase() === char ? 'b' : 'w'
-          let piece: Piece = color + role
+          let piece: Piece = `${color}${role}`
           let pos: Pos = `${files[i_file]}${ranks[7-i_rank]}`
           res.push([pos, piece])
           i_file++
@@ -49,11 +49,11 @@ export class Board {
     return poss_high_first
     .reduce(([out, rank, file, spaces], pos: Pos) => {
 
-      let piese = this._pieses.get(pos)
-      if (!piese) {
+      let piece = this._pieses.get(pos)
+      if (!piece) {
         spaces = (spaces || 0) + 1
       } else {
-        out += (spaces || '') + piece_fen(piese.split('@')[0])
+        out += (spaces || '') + piece_fen(piece)
         spaces = undefined
       }
 
@@ -72,7 +72,7 @@ export class Board {
   }
 
   get pieses() {
-    return [...this._pieses].map(_ => _.reverse().join('@'))
+    return [...this._pieses].map(_ => `${_[1]}@${_[0]}`)
   }
 
   in(_: Piese) {

@@ -30,8 +30,8 @@ export const poss_high_first = ranks_high.flatMap(rank  => files.map(file => `${
 
 export const ods = poss.flatMap(pos => poss.map(_pos => `${pos}${_pos}` as const))
 
-export type Piece = string
-export type Piese = string
+export type Piece = `${Color}${Role}`
+export type Piese = `${Piece}@${Pos}`
 export type Pieses = Array<Piese>
 
 export const f_file: FMap<File> = gen_fmap(files)
