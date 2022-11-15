@@ -54,7 +54,7 @@ export const path_split = (a: Path): [Path, Path | ''] => [a.slice(0, 2) as Path
 export const heads_path = (a: Path): Path | '' => a.slice(0, -2) as Path | ''
 
 
-export class Node {
+class Node {
 
   static from_uci = (uci: UCI, comment?: string) => {
     return new Node([],
@@ -120,7 +120,7 @@ function follow_path(node: Node, path: Path, acc: Array<Node>): Array<Node> {
   return follow_path(node.children.find(_ => _.path === rest2)!, rest, [...acc, node])
 }
 
-export class Replay {
+class Replay {
 
   static from_replay = (replay: Newlined<Anoded<Path, NodeFlat>>) => {
 
