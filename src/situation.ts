@@ -15,7 +15,9 @@ export function d_or<A>(d_ors: Array<GMap<Pos, A> | undefined>): GMap<Pos, A> {
   let res: any = {}
 
   d_ors.forEach(d_or => d_or && (Object.keys(d_or) as Array<Pos>).forEach(key => {
-    res[key] = d_or[key]
+    if (d_or[key]) {
+      res[key] = d_or[key]
+    }
   }))
 
   return res
@@ -50,8 +52,6 @@ export class MobileSituation {
       this.rays.capture_pawn(o),
       this.rays.castle(o)
     ].filter(Boolean))
-
-
 
     if (Object.keys(d_mobile).length > 0) {
       return g_map(d_mobile, (d, mobile) => {

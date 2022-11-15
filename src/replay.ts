@@ -54,11 +54,6 @@ export const path_split = (a: Path): [Path, Path | ''] => [a.slice(0, 2) as Path
 export const heads_path = (a: Path): Path | '' => a.slice(0, -2) as Path | ''
 
 
-
-
-const __node = Symbol('node')
-export type NodeExport = string & { [__node]: true }
-
 export class Node {
 
   static from_uci = (uci: UCI, comment?: string) => {
