@@ -46,6 +46,11 @@ export type ODP = `${OD}=${Promotable}`
 export type ODorP = OD | ODP
 export type UCI = ODorP
 
+
+export const isOd = (_: UCI): _ is OD => {
+  return _.length === 4
+}
+
 const __path = Symbol('path')
 export type Path = string & { [__path]: true }
 

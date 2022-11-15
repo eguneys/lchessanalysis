@@ -21,6 +21,15 @@ export class Castles {
     }
   }
 
+  get fen() {
+    let res = ''
+    if (this.K) { res += 'K' }
+    if (this.Q) { res += 'Q' }
+    if (this.k) { res += 'k' }
+    if (this.q) { res += 'q' }
+    return res
+  }
+
   constructor(
     readonly K: boolean,
     readonly Q: boolean,
