@@ -1,28 +1,22 @@
-import { MobileSituation } from './situation'
-import { Path, UCI, Comment } from './replay'
+import { Fen } from './fen'
+import { UciChar, Path, UCI, Comment } from './replay'
 
-export class NodeRootBase {
+export class Node {
 
-  get fen() {
-    return this.situation.fen
-  }
-
-  constructor(readonly situation: MobileSituation,
-              readonly children: Array<Node>) {
-
-              }
+  constructor(readonly fen: Fen,
+              readonly children: Array<Branch>) { }
 }
 
-export class Node extends NodeRootBase {
+export class Branch extends Node {
 
-  constructor(situation: MobileSituation,
-              children: Array<Node>,
-              readonly path: Path,
-              readonly uci: UCI,
-              readonly comment?: Comment) { super(situation, children) }
+  constructor(id: UciChar,
+    fen: Fen,
+    children: Array<Branch>,
+    readonly uci: UCI,
+    readonly comment?: Comment) { super(fen, children) }
 }
 
-export class Root extends NodeRootBase {
+export class Root extends Node {
 
 
 
