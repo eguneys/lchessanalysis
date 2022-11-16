@@ -90,6 +90,8 @@ export class Node {
 
 }
 
+export type FlatDoc = [{ fen: Fen }, Array<[Path, { fen: Fen, uci: UCI }]>]
+
 export class FlatTree {
 
   static write_root = (root: Node) => {
@@ -113,11 +115,9 @@ export class FlatTree {
     return Node.make_branch(doc.fen, doc.uci)
   }
 
-  static read = (docs: Array<[Path, { fen: Fen, uci: UCI }]>) => {
-    docs.sort((a, b) => size(a[0]) - size(b[0]))
-
-    let [[_, _root], ...rest] = docs
-
+  static read = (docs: FlatDoc) => {
+    let [_root, rest] = docs
+    rest.sort((a, b) => size(a[0]) - size(b[0]))
 
     let root = FlatTree.read_root(_root)
     rest.forEach(([path, doc]) => root.add_node(FlatTree.read_node(doc), init(path)))
@@ -125,7 +125,7 @@ export class FlatTree {
     return root
   }
 
-  static apply = (root: Node) => {
+  static apply = (root: Node): FlatDoc => {
 
     function traverse(node: Node, parentPath: Path | ''): Array<[Path, { fen: Fen, uci: UCI }]> {
       let path = `${parentPath}${node.id}`
@@ -133,7 +133,10 @@ export class FlatTree {
       return [...node.children.flatMap(_ => traverse(_, path)), [path, FlatTree.write_node(node)]]
     }
 
-    return [...root.children.flatMap(_ => traverse(_, '')), ['', FlatTree.write_root(root)]]
+    return [
+      FlatTree.write_root(root),
+      root.children.flatMap(_ => traverse(_, ''))
+    ]
   }
 
 }
