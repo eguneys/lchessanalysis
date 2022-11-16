@@ -5,7 +5,7 @@ import { UCI, isOd } from './replay'
 export class Replay {
 
 
-  static game_move_while_valid = (moves: Array<UCI>, fen: Fen) => {
+  static game_move_while_valid = (moves: Array<UCI>, fen: Fen): [MobileSituation, Array<[MobileSituation, UCI]>] => {
     function make(situation: MobileSituation, moves: Array<UCI>): Array<[MobileSituation, UCI]> {
       if (moves.length === 0) {
         return []

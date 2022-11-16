@@ -1,3 +1,5 @@
+import { MobileSituation } from './situation'
+import { Replay } from './replay2'
 import { UCI, UciChar, uci_char } from './replay'
 import { Fen } from './fen'
 
@@ -46,7 +48,7 @@ export class Node {
 
 
   add_node(node: Node, path: Path) {
-    const new_path = path + node.id,
+    const new_path: Path = `${path}${node.id}`,
       existing = this.node_at_path_or_undefined(new_path)
 
     if (existing) {
@@ -85,5 +87,81 @@ export class Node {
               readonly fen: Fen,
               readonly children: Array<Node>,
               readonly uci?: UCI) {}
+
+}
+
+export class FlatTree {
+
+  static write_root = (root: Node) => {
+    return {
+      fen: root.fen
+    }
+  }
+
+  static read_root = (_: { fen: Fen }) => {
+    return Node.make_root(_.fen)
+  }
+
+  static write_node = (node: Node) => {
+    return {
+      fen: node.fen,
+      uci: node.uci!
+    }
+  }
+
+  static read_node = (doc: { fen: Fen, uci: UCI }) => {
+    return Node.make_branch(doc.fen, doc.uci)
+  }
+
+  static read = (docs: Array<[Path, { fen: Fen, uci: UCI }]>) => {
+    docs.sort((a, b) => size(a[0]) - size(b[0]))
+
+    let [[_, _root], ...rest] = docs
+
+
+    let root = FlatTree.read_root(_root)
+    rest.forEach(([path, doc]) => root.add_node(FlatTree.read_node(doc), init(path)))
+
+    return root
+  }
+
+  static apply = (root: Node) => {
+
+    function traverse(node: Node, parentPath: Path | ''): Array<[Path, { fen: Fen, uci: UCI }]> {
+      let path = `${parentPath}${node.id}`
+
+      return [...node.children.flatMap(_ => traverse(_, path)), [path, FlatTree.write_node(node)]]
+    }
+
+    return [...root.children.flatMap(_ => traverse(_, '')), ['', FlatTree.write_root(root)]]
+  }
+
+}
+
+export class TreeBuilder {
+
+  static apply = (game: MobileSituation, moves: Array<UCI>) => {
+
+
+    let [init, games] = Replay.game_move_while_valid(moves, game.fen)
+
+    let root = Node.make_root(init.fen)
+
+    const make_branch = (g: MobileSituation, m: UCI) => {
+      return Node.make_branch(g.fen, m)
+    }
+
+    let [[g, m], ...rest] = games.reverse()
+    let node = rest.reduce((node, [g, m]) => {
+      let new_branch = make_branch(g, m)
+      new_branch.add_node(node, '')
+      return new_branch
+    }, make_branch(g, m))
+
+    root.add_node(node, '')
+
+    return root
+  }
+
 
 }

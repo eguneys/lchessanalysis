@@ -98,8 +98,8 @@ export class MobileSituation {
   }
 
 
-  get fen() {
-    return [this._board.fen, this.turn, this._castles.fen].join(' ')
+  get fen(): Fen {
+    return `${this._board.fen} ${this.turn} ${this._castles.fen}`
   }
 
   rays: MobileRay
