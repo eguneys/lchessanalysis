@@ -154,14 +154,16 @@ export class TreeBuilder {
       return Node.make_branch(g.fen, m)
     }
 
-    let [[g, m], ...rest] = games.reverse()
-    let node = rest.reduce((node, [g, m]) => {
-      let new_branch = make_branch(g, m)
-      new_branch.add_node(node, '')
-      return new_branch
-    }, make_branch(g, m))
+    if (games.length > 0) {
+      let [[g, m], ...rest] = games.reverse()
+      let node = rest.reduce((node, [g, m]) => {
+        let new_branch = make_branch(g, m)
+        new_branch.add_node(node, '')
+        return new_branch
+      }, make_branch(g, m))
+      root.add_node(node, '')
+    }
 
-    root.add_node(node, '')
 
     return root
   }

@@ -70,7 +70,6 @@ export function match_idea(iso: IsoSituation, sit: MobileSituation, i: Idea) {
 
       if (k) {
         return _res.flatMap(d => {
-
           let [iso2]  = iso.od(o+d)
 
           return ctx[k].filter(dd => iso2.o_ds(d).includes(d+dd))

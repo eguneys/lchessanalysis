@@ -81,8 +81,10 @@ export class IsoSituation {
   }
 
   get ods() {
-    return (Object.keys(this.allowed_mobiles) as Array<Pos>)
-    .flatMap(o => (Object.keys(this.allowed_mobiles[o]) as Array<Pos>).map(d => `${o}${d}`))
+    let { allowed_mobiles } = this
+
+    return (Object.keys(allowed_mobiles) as Array<Pos>)
+    .flatMap(o => (Object.keys(allowed_mobiles[o]) as Array<Pos>).filter(d => !!allowed_mobiles[o][d]).map(d => `${o}${d}`))
   }
 
   od(od: OD) {
