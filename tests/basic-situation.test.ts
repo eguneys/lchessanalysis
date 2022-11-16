@@ -7,7 +7,7 @@ it('knight move', () => {
   expect(situation.ods.length).toBe(2)
 })
 
-it.skip('should mobile_situation', () => {
+it.only('should mobile_situation', () => {
 
   let situation = MobileSituation.from_fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
