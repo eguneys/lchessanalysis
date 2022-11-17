@@ -57,13 +57,17 @@ export class MobileSituation {
       return g_map(d_mobile, (d, mobile) => {
         if (mobile) {
           let [board] = mobile
-          return [this.opposite(board)]
+          return [this._opposite(board)]
         }
       })
     }
   }
 
-  opposite(board: Board) {
+  get opposite() {
+    return opposite[this.turn]
+  }
+
+  _opposite(board: Board) {
     return new MobileSituation(opposite[this.turn], board, this._castles)
   }
 

@@ -14,9 +14,11 @@ import { MobileSituation } from './situation'
 
 */
 
+/*
 export type Object = string
 export type Arrow = Array<Object>
 export type Idea = Array<Arrow>
+*/
 
 const obj_diff_symbols = obj => {
   return Object.keys(obj).every(_ => Object.keys(obj).every(__ => _ === __ || obj[_][0] !== obj[__][0]))
