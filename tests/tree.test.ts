@@ -10,4 +10,6 @@ it('tree', () => {
   expect(FlatTree.apply(root)[1].length).toBe(3)
 
   expect(FlatTree.apply(FlatTree.read(FlatTree.apply(root)))).toStrictEqual(FlatTree.apply(root))
+
+  console.log(root.lines)
 })
