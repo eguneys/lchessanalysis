@@ -31,7 +31,7 @@ export function gen_const(idea: Idea) {
     let p_map = new Map(symbols.map(_ => [_, c_single(_)]))
     let _res: any
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 8; i++) {
       _res = idea.map(arrow => {
         let p2_map = new Map()
         let [role] = arrow
@@ -44,6 +44,7 @@ export function gen_const(idea: Idea) {
           let _f2_intersect = intersect(f2, _f2.flat())
 
           let _f = f.filter((f, i) => intersect(f2, _f2[i]).length > 0)
+          _f = intersect(_f, p_map.get(arrow[i]))
 
           p_map.set(arrow[i], _f)
           p_map.set(arrow[i+1], _f2_intersect)
@@ -59,7 +60,6 @@ export function gen_const(idea: Idea) {
 
     const merge2 = (aa: Array<Array<Pos>>, bb: Array<Array<Pos>>) =>
     aa.flatMap(a => bb.filter(b => b[0] === a[a.length - 1]).map(b => [...a, b[1]]))
-
 
     let __ = idea.map((arrow, i) => {
       let p2_map = _res[i]
