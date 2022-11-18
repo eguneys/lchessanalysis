@@ -44,7 +44,7 @@ export function gen_const(idea: Idea) {
           let _f2_intersect = intersect(f2, _f2.flat())
 
           let _f = f.filter((f, i) => intersect(f2, _f2[i]).length > 0)
-          _f = intersect(_f, p_map.get(arrow[i]))
+          _f = intersect(_f, p_map.get(arrow[i])!)
 
           p_map.set(arrow[i], _f)
           p_map.set(arrow[i+1], _f2_intersect)
