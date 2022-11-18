@@ -167,7 +167,7 @@ export class FlatTree {
 export class TreeBuilder {
 
 
-  static uci_convert = (_merge_root: Node, root: Node, map: Map<Pos, Pos>) => {
+  static uci_convert = (_merge_root: Node, _path: Path, root: Node, map: Map<Pos, Pos>) => {
 
     let merge_root = _merge_root.clone
 
@@ -184,14 +184,13 @@ export class TreeBuilder {
     }
     
     let fail = root.lines.find(line => {
-      let path = ''
-      let fen = merge_root.fen
+      let path = _path
+      let fen = merge_root.node_at_path_or_undefined(_path)!.fen
       let fail = line.find(node => {
         if (node.uci) {
           let new_uci = uci_convert(node.uci)
           let new_id = uci_char(new_uci)
 
-          path = path + new_id
           let new_sit = MobileSituation.from_fen(fen).od(new_uci as any)
 
           if (!new_sit) {
@@ -202,6 +201,7 @@ export class TreeBuilder {
           let new_node = new Node(new_id, fen, [], new_uci)
 
           merge_root.add_node(new_node, path)
+          path = path + new_id
 
           return false
         }
