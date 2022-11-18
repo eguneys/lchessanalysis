@@ -25,7 +25,8 @@ const obj_diff_symbols = obj => {
 }
 
 
-export function match_idea(iso: IsoSituation, sit: MobileSituation, i: Idea) {
+/*
+function match_idea(iso: IsoSituation, sit: MobileSituation, i: Idea) {
 
   let { turn } = sit
   let opposite = turn === 'w' ? 'b' : 'w'
@@ -88,6 +89,7 @@ export function match_idea(iso: IsoSituation, sit: MobileSituation, i: Idea) {
 }
 
 
+*/
 
 
 
