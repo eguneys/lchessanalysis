@@ -1,6 +1,7 @@
+import { Pos } from './types'
 import { MobileSituation } from './situation'
 import { Replay } from './replay2'
-import { UCI, UciChar, uci_char } from './replay'
+import { uci_split, UCI, UciChar, uci_char } from './replay'
 import { Fen } from './fen'
 
 
@@ -142,6 +143,57 @@ export class FlatTree {
 }
 
 export class TreeBuilder {
+
+
+  static uci_convert = (root: Node, map: Map<Pos, Pos>) => {
+
+    const uci_convert = (uci: UCI): UCI => {
+      let [od, _] = uci_split(uci)
+
+      let [o, d] = [od.slice(0, 2), od.slice(2, 4)] as [Pos, Pos]
+
+      let new_o = map.get(o) || o
+      let new_d = map.get(d) || d
+
+      return `${new_o}${new_d}${_}` as UCI
+
+    }
+
+    function traverse(node: Node, parentPath: Path | '', node_fen: Fen): Array<Node> | undefined {
+      let path = `${parentPath}${node.id}`
+
+      let sit = MobileSituation.from_fen(node_fen)
+
+      let res = node.children.flatMap(_ => {
+
+        let new_uci = uci_convert(_.uci!)
+        let id = uci_char(new_uci)
+
+        let new_sit = sit.od(new_uci as any)
+        if (!new_sit) {
+          return []
+        }
+
+        let fen = new_sit[0].fen
+        let children = traverse(_, path, fen)
+        if (!children) {
+          return []
+        }
+        return new Node(id, fen, children, new_uci)
+      })
+      if (res.length === node.children.length) {
+        return res
+      }
+    }
+
+
+    let new_root = Node.make_root(root.fen)
+    let children = root.children.flatMap(_ => traverse(_, '', new_root.fen) || [])
+    if (children && children.length === root.children.length) {
+      return new Node('', root.fen, children, undefined)
+    }
+  }
+
 
   static apply = (game: MobileSituation, moves: Array<UCI>) => {
 
