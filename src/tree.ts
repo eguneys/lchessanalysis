@@ -34,8 +34,17 @@ export class Node {
     return nodes
   }
 
+  get clone(): Node {
 
-  get child_paths() {
+    let children = this.children.map(_ => _.clone)
+
+    return new Node(this.id,
+      this.fen,
+      children,
+      this.uci)
+  }
+
+  get child_paths(): Array<Path> {
     let res = this.children.flatMap(_ => _.child_paths)
     if (res.length === 0) {
       return [this.id]
@@ -43,7 +52,7 @@ export class Node {
     return res.map(_ => `${this.id}${_}`)
   }
 
-  get lines() {
+  get lines(): Array<Array<Node>> {
     return this.child_paths.map(_ => this.node_list(_))
   }
 
@@ -158,7 +167,9 @@ export class FlatTree {
 export class TreeBuilder {
 
 
-  static uci_convert = (merge: Node, root: Node, map: Map<Pos, Pos>) => {
+  static uci_convert = (_merge_root: Node, root: Node, map: Map<Pos, Pos>) => {
+
+    let merge_root = _merge_root.clone
 
     const uci_convert = (uci: UCI): UCI => {
       let [od, _] = uci_split(uci)
@@ -171,18 +182,37 @@ export class TreeBuilder {
       return `${new_o}${new_d}${_ ?? ''}` as UCI
 
     }
+    
+    let fail = root.lines.find(line => {
+      let path = ''
+      let fen = merge_root.fen
+      let fail = line.find(node => {
+        if (node.uci) {
+          let new_uci = uci_convert(node.uci)
+          let new_id = uci_char(new_uci)
 
-    root.lines.forEach(line => line.forEach(node => {
-      if (node.uci) {
+          path = path + new_id
+          let new_sit = MobileSituation.from_fen(fen).od(new_uci as any)
 
-        let new_uci = uci_convert(node.uci)
-        let new_id = uci_char(new_uci)
+          if (!new_sit) {
+            return true
+          }
+          fen = new_sit[0].fen
+
+          let new_node = new Node(new_id, fen, [], new_uci)
+
+          merge_root.add_node(new_node, path)
+
+          return false
+        }
+      })
+      return fail
+    })
 
 
-      }
-    }))
-
-
+    if (!fail) {
+      return merge_root
+    }
   }
 
 
