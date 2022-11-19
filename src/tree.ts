@@ -20,6 +20,8 @@ export const fromNodes = (nodes: Array<Node>): Path => {
   return path
 }
 
+export type Comment = string
+
 export class Node {
 
   static collect = (from: Node, pick: (_: Node) => Node | undefined): Array<Node> => {
@@ -41,7 +43,8 @@ export class Node {
     return new Node(this.id,
       this.fen,
       children,
-      this.uci)
+      this.uci,
+      this.comment)
   }
 
   get child_paths(): Array<Path> {
@@ -68,6 +71,38 @@ export class Node {
       return node.child_by_id(id)
     })
   }
+
+
+  merge_node(node: Node, path: Path) {
+    const new_path: Path = `${path}${node.id}`,
+      existing = this.node_at_path_or_undefined(new_path)
+
+    return this.update_at(path, (parent: Node) => {
+      if (existing) {
+        let new_comment = existing.comment
+        if (!new_comment) {
+          new_comment = node.comment
+        } else {
+          if (node.comment) {
+            new_comment += ' ' + node.comment
+
+          }
+        }
+
+        let new_node = new Node(
+          new_path,
+          existing.fen,
+          existing.children,
+          existing.uci,
+          new_comment
+        )
+        parent.children.splice(parent.children.indexOf(existing), 1, new_node)
+      } else {
+        parent.children.push(node)
+      }
+    }) ? new_path : undefined
+  }
+
 
 
   add_node(node: Node, path: Path) {
@@ -98,44 +133,47 @@ export class Node {
     return child ? child.node_at_path_or_undefined(tail(path)) : undefined
   }
 
-  static make_root = (fen: Fen) => {
-    return new Node('', fen, [], undefined)
+  static make_root = (fen: Fen, comment?: Comment) => {
+    return new Node('', fen, [], undefined, comment)
   }
 
-  static make_branch = (fen: Fen, uci: UCI) => {
-    return new Node(uci_char(uci), fen, [], uci)
+  static make_branch = (fen: Fen, uci: UCI, comment?: Comment) => {
+    return new Node(uci_char(uci), fen, [], uci, comment)
   }
 
   constructor(readonly id: UciChar | '',
               readonly fen: Fen,
               readonly children: Array<Node>,
-              readonly uci?: UCI) {}
+              readonly uci?: UCI,
+              readonly comment?: Comment) {}
 
 }
 
-export type FlatDoc = [{ fen: Fen }, Array<[Path, { fen: Fen, uci: UCI }]>]
+export type FlatDoc = [{ fen: Fen }, Array<[Path, { fen: Fen, uci: UCI, comment?: Comment }]>]
 
 export class FlatTree {
 
   static write_root = (root: Node) => {
     return {
-      fen: root.fen
+      fen: root.fen,
+      comment: root.comment
     }
   }
 
-  static read_root = (_: { fen: Fen }) => {
-    return Node.make_root(_.fen)
+  static read_root = (_: { fen: Fen, comment?: Comment }) => {
+    return Node.make_root(_.fen, _.comment)
   }
 
   static write_node = (node: Node) => {
     return {
       fen: node.fen,
-      uci: node.uci!
+      uci: node.uci!,
+      comment: node.comment
     }
   }
 
-  static read_node = (doc: { fen: Fen, uci: UCI }) => {
-    return Node.make_branch(doc.fen, doc.uci)
+  static read_node = (doc: { fen: Fen, uci: UCI, comment?: Comment }) => {
+    return Node.make_branch(doc.fen, doc.uci, doc.comment)
   }
 
   static read = (docs: FlatDoc) => {
@@ -150,7 +188,7 @@ export class FlatTree {
 
   static apply = (root: Node): FlatDoc => {
 
-    function traverse(node: Node, parentPath: Path | ''): Array<[Path, { fen: Fen, uci: UCI }]> {
+    function traverse(node: Node, parentPath: Path | ''): Array<[Path, { fen: Fen, uci: UCI, comment?: Comment }]> {
       let path = `${parentPath}${node.id}`
 
       return [...node.children.flatMap(_ => traverse(_, path)), [path, FlatTree.write_node(node)]]
@@ -198,7 +236,9 @@ export class TreeBuilder {
           }
           fen = new_sit[0].fen
 
-          let new_node = new Node(new_id, fen, [], new_uci)
+          let new_comment = node.comment
+
+          let new_node = new Node(new_id, fen, [], new_uci, new_comment)
 
           merge_root.add_node(new_node, path)
           path = path + new_id
