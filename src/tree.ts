@@ -73,6 +73,17 @@ export class Node {
   }
 
 
+  map_comments(f: (_: Node) => Comment | undefined): Node {
+    let children = this.children.map(_ => _.map_comments(f))
+    let comment = f(this)
+
+    return new Node(this.id,
+                    this.fen,
+                    children,
+                    this.uci,
+                    comment)
+  }
+
   merge_node(node: Node, path: Path) {
     const new_path: Path = `${path}${node.id}`,
       existing = this.node_at_path_or_undefined(new_path)
@@ -90,7 +101,7 @@ export class Node {
         }
 
         let new_node = new Node(
-          new_path,
+          existing.id,
           existing.fen,
           existing.children,
           existing.uci,
@@ -240,7 +251,7 @@ export class TreeBuilder {
 
           let new_node = new Node(new_id, fen, [], new_uci, new_comment)
 
-          merge_root.add_node(new_node, path)
+          merge_root.merge_node(new_node, path)
           path = path + new_id
 
           return false
