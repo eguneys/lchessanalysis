@@ -60,7 +60,12 @@ export class DuckBoard {
 
       let piece = this._pieses.get(pos)
       if (!piece) {
-        spaces = (spaces || 0) + 1
+        if (this.duck === pos) {
+          out += (spaces || '') + 'd'
+          spaces = undefined
+        } else {
+          spaces = (spaces || 0) + 1
+        }
       } else {
         out += (spaces || '') + piece_fen(piece)
         spaces = undefined
