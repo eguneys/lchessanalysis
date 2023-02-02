@@ -36,6 +36,22 @@ export class Node {
     return nodes
   }
 
+  static breadfirst = (root: Node, visit: (path: Path, _: Node) => boolean) => {
+    let queue: Array<[Path, Node]> = [['', root]]
+
+    while (queue.length > 0) {
+      let [path, node] = queue.shift()!
+
+      if (visit(path, node)) {
+        break
+      }
+
+      for (let i = 0; i < node.children.length; i++) {
+        queue.push([path + node.children[i].id, node.children[i]])
+      }
+    }
+  }
+
   get clone(): Node {
 
     let children = this.children.map(_ => _.clone)
@@ -114,6 +130,17 @@ export class Node {
     }) ? new_path : undefined
   }
 
+  delete_children(path: Path) {
+    this.update_at(path, parent => {
+      parent.children.splice(0, parent.children.length)
+    })
+  }
+
+  delete_after(path: Path, node: Path) {
+    this.update_at(path, parent => {
+      parent.children.splice(parent.children.findIndex(_ => _.id === node), 1)
+    })
+  }
 
 
   add_node(node: Node, path: Path) {
@@ -130,6 +157,7 @@ export class Node {
   }
 
   update_at(path: Path, update: (node: Node) => void) {
+
     let node = this.node_at_path_or_undefined(path)
     if (node) {
       update(node)
