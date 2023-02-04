@@ -130,6 +130,14 @@ export class Node {
     }) ? new_path : undefined
   }
 
+  delete_siblings(path: Path) {
+    let last_path = last(path)
+    let parent = init(path)
+    this.update_at(parent, parent => {
+      parent.children = parent.children.filter(_ => _.id === last_path)
+    })
+  }
+
   delete_children(path: Path) {
     this.update_at(path, parent => {
       parent.children.splice(0, parent.children.length)
@@ -180,11 +188,16 @@ export class Node {
     return new Node(uci_char(uci), fen, [], uci, comment)
   }
 
+  children: Array<Node>
+
   constructor(readonly id: UciChar | '',
               readonly fen: Fen,
-              readonly children: Array<Node>,
+              children: Array<Node>,
               readonly uci?: UCI,
-              readonly comment?: Comment) {}
+              readonly comment?: Comment) {
+              
+                this.children = children
+              }
 
 }
 
